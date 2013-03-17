@@ -32,6 +32,11 @@
 
 #include <trace/events/power.h>
 
+//Infamous Specifics
+static unsigned int Lenable_auto_hotplug = 0;
+extern void apenable_auto_hotplug(bool state);
+
+
 /**
  * The "cpufreq driver" - the arch- or hardware-dependent low
  * level driver of CPUFreq support, and its spinlock. This lock
@@ -619,6 +624,21 @@ static ssize_t show_bios_limit(struct cpufreq_policy *policy, char *buf)
 	return sprintf(buf, "%u\n", policy->cpuinfo.max_freq);
 }
 
+static ssize_t show_enable_auto_hotplug(struct cpufreq_policy *policy, char *buf)
+{
+  return sprintf(buf, "%u\n", Lenable_auto_hotplug);
+}
+static ssize_t store_enable_auto_hotplug(struct cpufreq_policy *policy,
+          const char *buf, size_t count)
+{
+  unsigned int val = 0;
+  unsigned int ret;
+  ret = sscanf(buf, "%u", &val);
+  Lenable_auto_hotplug = val;
+  apenable_auto_hotplug((bool) Lenable_auto_hotplug);
+  return count;
+}
+
 #ifdef CONFIG_CPU_VOLTAGE_TABLE
 
 extern ssize_t acpuclk_get_vdd_levels_str(char *buf);
@@ -699,6 +719,7 @@ cpufreq_freq_attr_rw(scaling_setspeed);
 #ifdef CONFIG_CPU_VOLTAGE_TABLE
 define_one_global_rw(vdd_levels);
 #endif
+cpufreq_freq_attr_rw(enable_auto_hotplug);
 
 static struct attribute *default_attrs[] = {
 	&cpuinfo_min_freq.attr,
@@ -719,6 +740,7 @@ static struct attribute *default_attrs[] = {
 #ifdef CONFIG_CPU_VOLTAGE_TABLE
 static struct attribute *vddtbl_attrs[] = {
 	&vdd_levels.attr,
+        &enable_auto_hotplug.attr,
 	NULL
 };
 
@@ -865,8 +887,7 @@ static int cpufreq_add_dev_policy(unsigned int cpu,
 
 			spin_lock_irqsave(&cpufreq_driver_lock, flags);
 			cpumask_copy(managed_policy->cpus, policy->cpus);
-			cpumask_and(managed_policy->cpus,
-					managed_policy->cpus, cpu_online_mask);
+			cpumask_and(managed_policy->cpus, managed_policy->cpus, cpu_online_mask);
 			per_cpu(cpufreq_cpu_data, cpu) = managed_policy;
 			spin_unlock_irqrestore(&cpufreq_driver_lock, flags);
 
