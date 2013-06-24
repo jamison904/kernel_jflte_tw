@@ -1,7 +1,7 @@
 VERSION = 3
 PATCHLEVEL = 4
 SUBLEVEL = 0
-EXTRAVERSION =
+EXTRAVERSION =_Infamous_S4_Kernel
 NAME = Saber-toothed Squirrel
 
 # *DOCUMENTATION*
@@ -194,8 +194,8 @@ SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ \
 export KBUILD_BUILDHOST := $(SUBARCH)
 #ARCH		?= $(SUBARCH)
 #CROSS_COMPILE	?= $(CONFIG_CROSS_COMPILE:"%"=%)
-ARCH  ?= arm
-CROSS_COMPILE ?= /opt/toolchains/arm-eabi-4.6/bin/arm-eabi-
+ARCH		?= arm
+CROSS_COMPILE	= /home/jamison904/android/toolchain/arm-eabi-4.6/bin/arm-eabi-
 
 # Architecture as present in compile.h
 UTS_MACHINE 	:= $(ARCH)
