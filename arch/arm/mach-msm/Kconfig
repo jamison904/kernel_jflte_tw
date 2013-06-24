@@ -1779,6 +1779,7 @@ config MSM_CPU_FREQ_MIN
 
 endif # CPU_FREQ_MSM
 
+<<<<<<< HEAD
 config LOW_CPUCLOCKS
 	bool "Enable ultra low CPU clocks"
 	default n
@@ -1802,6 +1803,8 @@ config MSM_CPUFREQ_LIMITER
 
 	  If in doubt, say N.
 
+=======
+>>>>>>> 6ddb440... Voltage Control: initial voltage control for MSM S4-Pro SOC
 config CPU_VOLTAGE_TABLE
 	bool "Enable CPU Voltage Table via sysfs for adjustements"
 	default n
