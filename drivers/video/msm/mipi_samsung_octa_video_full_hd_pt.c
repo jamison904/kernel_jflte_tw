@@ -42,11 +42,6 @@ static char samsung_test_key_on1[] = {
 	0x5A, 0x5A,
 };
 
-static char samsung_test_key_on2[] = {
-	0xF1,
-	0x5A, 0x5A,
-};
-
 static char samsung_test_key_on3[] = {
 	0xFC,
 	0x5A, 0x5A,
@@ -639,8 +634,6 @@ static struct dsi_cmd_desc samsung_on_cmds_revB[] = {
 	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
 		sizeof(samsung_test_key_on1), samsung_test_key_on1},
 	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
-		sizeof(samsung_test_key_on2), samsung_test_key_on2},
-	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
 		sizeof(samsung_test_key_on3), samsung_test_key_on3},
 
 	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
@@ -713,8 +706,6 @@ static struct dsi_cmd_desc samsung_on_cmds_revB[] = {
 static struct dsi_cmd_desc samsung_on_cmds_revC[] = {
 	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
 		sizeof(samsung_test_key_on1), samsung_test_key_on1},
-	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
-		sizeof(samsung_test_key_on2), samsung_test_key_on2},
 	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
 		sizeof(samsung_test_key_on3), samsung_test_key_on3},
 
@@ -793,8 +784,6 @@ static struct dsi_cmd_desc samsung_on_cmds_revF[] = {
 	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
 		sizeof(samsung_test_key_on1), samsung_test_key_on1},
 	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
-		sizeof(samsung_test_key_on2), samsung_test_key_on2},
-	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
 		sizeof(samsung_test_key_on3), samsung_test_key_on3},
 
 	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
@@ -837,8 +826,6 @@ static struct dsi_cmd_desc samsung_on_cmds_revF[] = {
 static struct dsi_cmd_desc samsung_on_cmds_revG[] = {
 	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
 		sizeof(samsung_test_key_on1), samsung_test_key_on1},
-	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
-		sizeof(samsung_test_key_on2), samsung_test_key_on2},
 	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
 		sizeof(samsung_test_key_on3), samsung_test_key_on3},
 
@@ -886,8 +873,6 @@ static struct dsi_cmd_desc samsung_on_cmds_revG[] = {
 static struct dsi_cmd_desc samsung_on_cmds_revH[] = {
 	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
 		sizeof(samsung_test_key_on1), samsung_test_key_on1},
-	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
-		sizeof(samsung_test_key_on2), samsung_test_key_on2},
 	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
 		sizeof(samsung_test_key_on3), samsung_test_key_on3},
 
@@ -943,8 +928,6 @@ static struct dsi_cmd_desc samsung_on_cmds_revH[] = {
 static struct dsi_cmd_desc samsung_on_cmds_revI[] = {
 	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
 		sizeof(samsung_test_key_on1), samsung_test_key_on1},
-	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
-		sizeof(samsung_test_key_on2), samsung_test_key_on2},
 	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
 		sizeof(samsung_test_key_on3), samsung_test_key_on3},
 
@@ -1012,8 +995,6 @@ static struct dsi_cmd_desc panel_early_off_cmds[] = {
 static struct dsi_cmd_desc panel_mtp_enable_cmds[] = {
 	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
 		sizeof(samsung_test_key_on1), samsung_test_key_on1},
-	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
-		sizeof(samsung_test_key_on2), samsung_test_key_on2},
 	{DTYPE_DCS_LWRITE, 1, 0, 0, 0,
 		sizeof(samsung_test_key_on3), samsung_test_key_on3},
 };

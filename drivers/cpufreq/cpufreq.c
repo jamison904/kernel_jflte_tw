@@ -32,27 +32,6 @@
 
 #include <trace/events/power.h>
 
-//KT Specifics
-int GLOBALKT_MIN_FREQ_LIMIT = 378000;
-int GLOBALKT_MAX_FREQ_LIMIT = 1890000;
-
-static unsigned int vfreq_lock = 0;
-static bool vfreq_lock_tempOFF = false;
-static unsigned int isBooted = 0;
-
-<<<<<<< HEAD
-=======
-extern ssize_t acpuclk_get_vdd_levels_str(char *buf, int isApp);
-extern ssize_t acpuclk_get_vdd_levels_str_stock(char *buf, int isApp);
-extern void acpuclk_UV_mV_table(int cnt, int vdd_uv[]);
-extern unsigned int get_enable_oc(void);
-
-//Global placeholder for CPU policies
-static struct cpufreq_policy trmlpolicy[10];
-//Kthermal limit holder to stop govs from setting CPU speed higher than the thermal limit
-unsigned int kthermal_limit = 0;
-
->>>>>>> e1463b0... Added voltage control
 /**
  * The "cpufreq driver" - the arch- or hardware-dependent low
  * level driver of CPUFreq support, and its spinlock. This lock
@@ -462,133 +441,9 @@ static ssize_t store_##file_name					\
 	return ret ? ret : count;					\
 }
 
-static ssize_t __ref store_scaling_min_freq(struct cpufreq_policy *policy, const char *buf, size_t count)
-{
-	unsigned int ret = -EINVAL;
-	unsigned int value = 0;
-	struct cpufreq_policy new_policy;
+store_one(scaling_min_freq, min);
+store_one(scaling_max_freq, max);
 
-	ret = sscanf(buf, "%u", &value);
-	if (ret != 1)
-		return -EINVAL;
-
-	if (value == 384000)
-		value = 378000;
-
-	if (value <= GLOBALKT_MIN_FREQ_LIMIT)
-		value = GLOBALKT_MIN_FREQ_LIMIT;
-
-	if (!cpu_online(policy->cpu)) cpu_up(policy->cpu);
-
-	ret = cpufreq_get_policy(&new_policy, policy->cpu);
-	new_policy.min = value;
-	ret = __cpufreq_set_policy(policy, &new_policy);
-	policy->user_policy.min = policy->min;
-
-	return count;
-}
-
-static ssize_t __ref store_scaling_max_freq(struct cpufreq_policy *policy, const char *buf, size_t count)
-{
-	unsigned int ret = -EINVAL;
-	unsigned int value = 0;
-	struct cpufreq_policy new_policy;
-
-	ret = sscanf(buf, "%u", &value);
-	if (ret != 1)
-		return -EINVAL;
-
-	if (vfreq_lock == 0)
-	{
-		if (value > GLOBALKT_MAX_FREQ_LIMIT)
-			value = GLOBALKT_MAX_FREQ_LIMIT;
-		if (value < GLOBALKT_MIN_FREQ_LIMIT)
-			value = GLOBALKT_MIN_FREQ_LIMIT;
-
-		if (!cpu_online(policy->cpu)) cpu_up(policy->cpu);
-
-		ret = cpufreq_get_policy(&new_policy, policy->cpu);
-		new_policy.max = value;
-		ret = __cpufreq_set_policy(policy, &new_policy);
-		policy->user_policy.max = policy->max;
-	}
-	return count;
-}
-
-static ssize_t store_scaling_booted(struct cpufreq_policy *policy, const char *buf, size_t count)
-{
-	unsigned int ret = -EINVAL;
-	unsigned int value = 0;
-	struct cpufreq_policy new_policy;
-
-	pr_alert("store_scaling_booted call open: %d\n", GLOBALKT_MAX_FREQ_LIMIT);
-	ret = sscanf(buf, "%u", &value);
-	if (value == 1)
-	{
-		if (vfreq_lock == 1)
-		{
-			vfreq_lock = 0;
-			vfreq_lock_tempOFF = true;
-		}
-		isBooted = 1;
-		GLOBALKT_MIN_FREQ_LIMIT = 81000;
-		GLOBALKT_MAX_FREQ_LIMIT = 1890000;
-		cpufreq_get_policy(&new_policy, policy->cpu);
-		new_policy.min = 378000;
-		new_policy.max = 1890000;
-		new_policy.cpuinfo.min_freq = GLOBALKT_MIN_FREQ_LIMIT;
-		new_policy.cpuinfo.max_freq = GLOBALKT_MAX_FREQ_LIMIT;
-		new_policy.user_policy.min = 378000;
-		new_policy.user_policy.max = 1890000;
-		ret = __cpufreq_set_policy(policy, &new_policy);
-	}
-	else
-		isBooted = 0;
-	pr_alert("store_scaling_booted call close: %d\n", GLOBALKT_MAX_FREQ_LIMIT);
-	return count;
-}
-
-static ssize_t show_scaling_booted(struct cpufreq_policy *policy, char *buf)
-{
-	return sprintf(buf, "%u\n", isBooted);
-}
-
-ssize_t show_UV_mV_table(struct cpufreq_policy *policy, char *buf)
-{
-	int modu = 0;
-	if (get_enable_oc() == 0)
-		modu = FREQ_TABLE_SIZE_OFFSET;
-	return acpuclk_get_vdd_levels_str(buf, FREQ_STEPS-modu);
-}
-
-ssize_t show_UV_mV_table_stock(struct cpufreq_policy *policy, char *buf)
-{
-	int modu = 0;
-	if (get_enable_oc() == 0)
-		modu = FREQ_TABLE_SIZE_OFFSET;
-	return acpuclk_get_vdd_levels_str_stock(buf, FREQ_STEPS-modu);
-}
-
-ssize_t store_UV_mV_table(struct cpufreq_policy *policy,
-                                      const char *buf, size_t count)
-{
-	unsigned int ret = -EINVAL;
-	int modu = 0;
-	unsigned int is_en_oc = get_enable_oc();
-	int u[FREQ_STEPS];
-	if (is_en_oc == 0)
-		modu = FREQ_TABLE_SIZE_OFFSET;
-
-	ret = sscanf(buf, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", &u[0], &u[1], &u[2], &u[3], &u[4], &u[5], &u[6], &u[7], &u[8], &u[9], &u[10], &u[11], &u[12], &u[13], &u[14], &u[15], &u[16], &u[17], &u[18], &u[19], &u[20], &u[21]);
-
-	pr_alert("store_UV_mV_table: %d\n", ret);
-	if(ret != (FREQ_STEPS-modu)) {
-		return -EINVAL;
-	}
-
-	acpuclk_UV_mV_table(FREQ_STEPS-modu, u);
-	return count;
-}
 /**
  * show_cpuinfo_cur_freq - current CPU frequency as detected by hardware
  */
@@ -779,13 +634,6 @@ cpufreq_freq_attr_rw(scaling_min_freq);
 cpufreq_freq_attr_rw(scaling_max_freq);
 cpufreq_freq_attr_rw(scaling_governor);
 cpufreq_freq_attr_rw(scaling_setspeed);
-cpufreq_freq_attr_rw(scaling_booted);
-<<<<<<< HEAD
-=======
-cpufreq_freq_attr_rw(freq_lock);
-cpufreq_freq_attr_rw(UV_mV_table);
-cpufreq_freq_attr_ro(UV_mV_table_stock);
->>>>>>> e1463b0... Added voltage control
 
 static struct attribute *default_attrs[] = {
 	&cpuinfo_min_freq.attr,
@@ -800,13 +648,6 @@ static struct attribute *default_attrs[] = {
 	&scaling_driver.attr,
 	&scaling_available_governors.attr,
 	&scaling_setspeed.attr,
-	&scaling_booted.attr,
-<<<<<<< HEAD
-=======
-	&freq_lock.attr,
-	&UV_mV_table.attr,
-	&UV_mV_table_stock.attr,
->>>>>>> e1463b0... Added voltage control
 	NULL
 };
 
