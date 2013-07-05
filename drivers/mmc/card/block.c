@@ -1136,8 +1136,7 @@ retry:
 			goto out;
 	}
 
-	if (mmc_can_sanitize(card) &&
-	     (card->host->caps2 & MMC_CAP2_SANITIZE))
+	if (mmc_can_sanitize(card))
 		err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
 				 EXT_CSD_SANITIZE_START, 1, 0);
 out_retry:

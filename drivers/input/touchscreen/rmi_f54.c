@@ -26,9 +26,6 @@
 
 #include "synaptics_i2c_rmi.h"
 
-static int panel_colors = 2;
-extern void panel_load_colors(unsigned int value);
-
 #define FACTORY_MODE
 
 #define CMD_REPORT_TYPE_DELTA	2
@@ -967,45 +964,16 @@ static ssize_t cmd_result_show(struct device *dev,
 static ssize_t cmd_list_show(struct device *dev,
 		struct device_attribute *attr, char *buf);
 
-static ssize_t panel_colors_show(struct device *dev, struct device_attribute *attr, char *buf)
-{
-	return sprintf(buf, "%d\n", panel_colors);
-}
-
-static ssize_t panel_colors_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
-{
-	int ret;
-	unsigned int value;
-
-	ret = sscanf(buf, "%d\n", &value);
-	if (ret != 1)
-		return -EINVAL;
-
-	if (value < 0)
-		value = 0;
-	else if (value > 4)
-		value = 4;
-
-	panel_colors = value;
-
-	panel_load_colors(panel_colors);
-
-	return size;
-}
-
 static DEVICE_ATTR(cmd, S_IWUSR | S_IWGRP, NULL, cmd_store);
 static DEVICE_ATTR(cmd_status, S_IRUGO, cmd_status_show, NULL);
 static DEVICE_ATTR(cmd_result, S_IRUGO, cmd_result_show, NULL);
 static DEVICE_ATTR(cmd_list, S_IRUGO, cmd_list_show, NULL);
-static DEVICE_ATTR(panel_colors, S_IRUGO | S_IWUSR | S_IWGRP,
-			panel_colors_show, panel_colors_store);
 
 static struct attribute *cmd_attributes[] = {
 	&dev_attr_cmd.attr,
 	&dev_attr_cmd_status.attr,
 	&dev_attr_cmd_result.attr,
 	&dev_attr_cmd_list.attr,
-	&dev_attr_panel_colors.attr,
 	NULL,
 };
 
@@ -2205,11 +2173,7 @@ static void get_fw_ver_bin(void)
 	set_default_result(data);
 	sprintf(data->cmd_buff, "SY%02X%02X%02X",
 			rmi4_data->ic_revision_of_bin,
-#ifdef CONFIG_TOUCHSCREEN_FACTORY_PLATFORM
-			rmi4_data->factory_read_panel_wakeup,
-#else
 			rmi4_data->board->panel_touch_type,
-#endif
 			rmi4_data->fw_version_of_bin);
 	set_cmd_result(data, data->cmd_buff, strlen(data->cmd_buff));
 
@@ -2226,11 +2190,7 @@ static void get_fw_ver_ic(void)
 	set_default_result(data);
 	sprintf(data->cmd_buff, "SY%02X%02X%02X",
 			rmi4_data->ic_revision_of_ic,
-#ifdef CONFIG_TOUCHSCREEN_FACTORY_PLATFORM
-			rmi4_data->factory_read_panel_wakeup,
-#else
 			rmi4_data->board->panel_touch_type,
-#endif
 			rmi4_data->fw_version_of_ic);
 
 	set_cmd_result(data, data->cmd_buff, strlen(data->cmd_buff));
@@ -2248,14 +2208,9 @@ static void get_fac_fw_ver_bin(void)
 	const struct firmware *fw_entry = NULL;
 
 	set_default_result(data);
-#if defined(CONFIG_MACH_JACTIVE_EUR) || defined(CONFIG_MACH_JACTIVE_ATT)
-	retval = request_firmware(&fw_entry, FW_IMAGE_NAME_B0_HSYNC_FAC,
-			&rmi4_data->i2c_client->dev);
-#else
+
 	retval = request_firmware(&fw_entry, FW_IMAGE_NAME_B0_FAC,
 			&rmi4_data->i2c_client->dev);
-#endif
-
 	if (retval < 0) {
 		dev_err(&rmi4_data->i2c_client->dev,
 				"%s: factory firmware request failed\n",

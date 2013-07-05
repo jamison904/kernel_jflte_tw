@@ -2943,16 +2943,6 @@ static int __devinit sec_battery_probe(struct platform_device *pdev)
 	pdata->initial_check();
 	battery->present = battery->pdata->check_battery_callback();
 
-#ifdef CONFIG_SAMSUNG_BATTERY_FACTORY
-	/* do not sleep in lpm mode & factory mode */
-	if (battery->pdata->is_lpm()) {
-		wake_lock_init(&battery->lpm_wake_lock, WAKE_LOCK_SUSPEND,
-				"sec-lpm-monitor");
-		wake_lock(&battery->lpm_wake_lock);
-	}
-#endif
-
-
 	dev_dbg(battery->dev,
 		"%s: SEC Battery Driver Loaded\n", __func__);
 	return 0;

@@ -219,7 +219,7 @@ static u8 es325_internal_route_1mic_headset_WB[10] = {
 	0xff		/* terminate */
 };
 
-#if defined(CONFIG_MACH_JACTIVE_ATT) || defined(CONFIG_MACH_JACTIVE_EUR)
+#if defined(CONFIG_MACH_JACTIVE_ATT)
 /* 1-mic Speaker NB (1-mic FT)(NS off)(SW bypss) */
 static u8 es325_internal_route_1mic_speaker[10] = {
 	0x90, 0x31, 0x00, 0x0d, /* 1 Mic 1 FEOUT */

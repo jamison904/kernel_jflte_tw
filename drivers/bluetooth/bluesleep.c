@@ -285,8 +285,6 @@ static void bluesleep_sleep_work(struct work_struct *work)
 			/*Deactivating UART */
 			hsuart_power(0);
 
-			clear_bit(BT_EXT_WAKE, &flags);
-
 			/*Deactivating UART */
 			/* UART clk is not turned off immediately. Release
 			 * wakelock after 500 ms.
@@ -484,7 +482,7 @@ static void bluesleep_tx_timer_expire(unsigned long data)
 		{
 			bluesleep_tx_timer_expired();
 		}
-		//clear_bit(BT_EXT_WAKE, &flags);
+		clear_bit(BT_EXT_WAKE, &flags);
 		bluesleep_tx_idle();
 	} else {
 		BT_DBG("Tx data during last period");

@@ -206,10 +206,6 @@ static void sensor_power_on_vdd(int, int);
 #define PCIE_PWR_EN_PMIC_GPIO 13
 #define PCIE_RST_N_PMIC_MPP 1
 
-#ifdef CONFIG_CPU_FREQ_GOV_INTELLIDEMAND  
-int id_set_two_phase_freq(int cpufreq); 
-#endif 
-
 static int sec_tsp_synaptics_mode;
 static int lcd_tsp_panel_version;
 
@@ -1598,7 +1594,7 @@ struct sii8240_platform_data sii8240_pdata = {
 	.power = sii8240_hw_onoff,
 	.hw_reset = sii8240_hw_reset,
 	.gpio_cfg = mhl_gpio_config,
-	.swing_level = 0x26,
+	.swing_level = 0x36,
 	.vbus_present = muic77693_mhl_cb,
 };
 
@@ -2129,9 +2125,7 @@ static int ssp_check_changes(void)
 */
 static void ssp_get_positions(int *acc, int *mag)
 {
-	if (system_rev == BOARD_REV13)
-		*acc = MPU6500_TOP_RIGHT_UPPER;
-	else if (system_rev > BOARD_REV09)
+	if (system_rev > BOARD_REV09)
 		*acc = K330_TOP_LEFT_UPPER;
 	else if (system_rev > BOARD_REV04)
 		*acc = MPU6500_TOP_RIGHT_UPPER;
@@ -5331,9 +5325,6 @@ static void __init samsung_jf_init(void)
 	clear_ssp_gpio();
 	sensor_power_on_vdd(SNS_PWR_ON, SNS_PWR_ON);
 	initialize_ssp_gpio();
-#endif
-#ifdef CONFIG_CPU_FREQ_GOV_INTELLIDEMAND
-	id_set_two_phase_freq(1566000);
 #endif
 #ifdef CONFIG_MACH_JF
 	platform_device_register(&gpio_kp_pdev);

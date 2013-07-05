@@ -2290,10 +2290,7 @@ dhd_dpc_thread(void *data)
 #endif
 
 #ifdef CUSTOM_DPC_CPUCORE
-#ifdef CONFIG_MACH_UNIVERSAL5410
-	if (strstr(fw_path, "_apsta") == NULL)
-#endif
-		set_cpus_allowed_ptr(current, cpumask_of(CUSTOM_DPC_CPUCORE));
+	set_cpus_allowed_ptr(current, cpumask_of(CUSTOM_DPC_CPUCORE));
 #endif
 
 	/* Run until signal received */
@@ -5925,7 +5922,7 @@ int dhd_os_send_hang_message(dhd_pub_t *dhdp)
 		if (!dhdp->hang_was_sent) {
 			dhdp->hang_was_sent = 1;
 			ret = schedule_work(&dhdp->info->work_hang);
-			if (!ret)
+			if(!ret)
 				DHD_ERROR(("%s : schedule_task fail \n",__FUNCTION__));
 			else
 				DHD_ERROR(("%s : schedule_task success \n",__FUNCTION__));

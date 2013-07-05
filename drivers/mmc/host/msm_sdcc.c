@@ -2618,7 +2618,7 @@ static int msmsdcc_setup_vreg(struct msmsdcc_host *host, bool enable,
 #ifdef CONFIG_MMC_MSM_SDC4_SUPPORT
 	if (!enable) {
 #if defined(CONFIG_MACH_JF_ATT) || defined(CONFIG_MACH_JF_TMO) || defined(CONFIG_MACH_JF_EUR) || \
-	defined(CONFIG_MACH_JACTIVE_ATT) || defined(CONFIG_MACH_JACTIVE_EUR)
+	defined(CONFIG_MACH_JACTIVE_ATT)
 		if (system_rev != BOARD_REV07) { /* TI Level Shifter */
 			if (system_rev < BOARD_REV08 && host->pdev_id == 4)
 #else /* VZW/SPT/USCC */
@@ -2628,7 +2628,7 @@ static int msmsdcc_setup_vreg(struct msmsdcc_host *host, bool enable,
 				/* Disable level shifter */
 				gpio_set_value(60, 0); /* TFLASH_LS_EN */
 #if defined(CONFIG_MACH_JF_ATT) || defined(CONFIG_MACH_JF_TMO) || defined(CONFIG_MACH_JF_EUR) || \
-	defined(CONFIG_MACH_JACTIVE_ATT) || defined(CONFIG_MACH_JACTIVE_EUR)
+	defined(CONFIG_MACH_JACTIVE_ATT)
 			else if (system_rev >= BOARD_REV08 && host->pdev_id == 2)
 #else /* VZW/SPT/USCC/KOR */
 			else if (system_rev >= BOARD_REV09 && host->pdev_id == 2)
@@ -2664,7 +2664,7 @@ static int msmsdcc_setup_vreg(struct msmsdcc_host *host, bool enable,
 	if (enable) {
 		mdelay(1);
 #if defined(CONFIG_MACH_JF_ATT) || defined(CONFIG_MACH_JF_TMO) || defined(CONFIG_MACH_JF_EUR) || \
-	defined(CONFIG_MACH_JACTIVE_ATT) || defined(CONFIG_MACH_JACTIVE_EUR)
+	defined(CONFIG_MACH_JACTIVE_ATT)
 		if (system_rev < BOARD_REV08 && host->pdev_id == 4)
 #else /* VZW/SPT/USCC */
 		if (system_rev < BOARD_REV09 && host->pdev_id == 4)
@@ -2672,7 +2672,7 @@ static int msmsdcc_setup_vreg(struct msmsdcc_host *host, bool enable,
 			/* Enable level shifter */
 			gpio_set_value(60, 1); /* TFLASH_LS_EN */
 #if defined(CONFIG_MACH_JF_ATT) || defined(CONFIG_MACH_JF_TMO) || defined(CONFIG_MACH_JF_EUR) || \
-	defined(CONFIG_MACH_JACTIVE_ATT) || defined(CONFIG_MACH_JACTIVE_EUR)
+	defined(CONFIG_MACH_JACTIVE_ATT)
 		else if (system_rev >= BOARD_REV08 && host->pdev_id == 2)
 #else /* VZW/SPT/USCC/KOR */
 		else if (system_rev >= BOARD_REV09 && host->pdev_id == 2)
@@ -2688,7 +2688,7 @@ static int msmsdcc_setup_vreg(struct msmsdcc_host *host, bool enable,
 	} else {
 		mdelay(1);
 #if defined(CONFIG_MACH_JF_ATT) || defined(CONFIG_MACH_JF_TMO) || defined(CONFIG_MACH_JF_EUR) || \
-	defined(CONFIG_MACH_JACTIVE_ATT) || defined(CONFIG_MACH_JACTIVE_EUR)
+	defined(CONFIG_MACH_JACTIVE_ATT)
 		if (system_rev == BOARD_REV07) { /* Toshiba Level Shifter */
 			if (system_rev < BOARD_REV08 && host->pdev_id == 4)
 #else /* VZW/SPT/USCC */
@@ -6302,7 +6302,7 @@ msmsdcc_probe(struct platform_device *pdev)
 #else
 
 #if defined(CONFIG_MACH_JF_ATT) || defined(CONFIG_MACH_JF_TMO) || defined(CONFIG_MACH_JF_EUR) || \
-	defined(CONFIG_MACH_JACTIVE_ATT) || defined(CONFIG_MACH_JACTIVE_EUR)
+	defined(CONFIG_MACH_JACTIVE_ATT)
 	if (t_flash_detect_dev == NULL && 
 		(((host->pdev_id == 4) && (system_rev < BOARD_REV08)) ||
 		((host->pdev_id == 2) && (system_rev >= BOARD_REV08)))) {

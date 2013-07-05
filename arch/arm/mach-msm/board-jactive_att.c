@@ -1174,6 +1174,35 @@ static struct i2c_board_info touchkey_i2c_devices_info[] __initdata = {
 	},
 };
 
+
+static struct i2c_gpio_platform_data  cypress_touchkey_i2c_gpio_data = {
+	.sda_pin		= GPIO_TOUCHKEY_SDA,	
+	.scl_pin		= GPIO_TOUCHKEY_SCL,
+	.udelay			= 0,
+	.sda_is_open_drain	= 0,
+	.scl_is_open_drain	= 0,
+	.scl_is_output_only	= 0,
+};
+static struct platform_device touchkey_i2c_gpio_device = {
+	.name			= "i2c-gpio",
+	.id			= MSM_TOUCHKEY_I2C_BUS_ID,
+	.dev.platform_data	= &cypress_touchkey_i2c_gpio_data,
+};
+
+static struct i2c_gpio_platform_data  cypress_touchkey_i2c_gpio_data_2 = {
+	.sda_pin		= GPIO_TOUCHKEY_SDA,	
+	.scl_pin		= GPIO_TOUCHKEY_SCL_2,
+	.udelay			= 0,
+	.sda_is_open_drain	= 0,
+	.scl_is_open_drain	= 0,
+	.scl_is_output_only	= 0,
+};
+static struct platform_device touchkey_i2c_gpio_device_2 = {
+	.name			= "i2c-gpio",
+	.id			= MSM_TOUCHKEY_I2C_BUS_ID,
+	.dev.platform_data	= &cypress_touchkey_i2c_gpio_data_2,
+};
+
 #endif
 
 static int apq8064_change_memory_power(u64 start, u64 size,
@@ -1905,46 +1934,6 @@ struct pm8xxx_mpp_config_data mpp4_cfg = {
 };
 
 #define MPP_MCU_NRST PM8921_MPP_PM_TO_SYS(4)
-
-static void clear_ssp_gpio(void)
-{
-	struct pm_gpio ap_mcu_int_cfg = {
-		.direction = PM_GPIO_DIR_IN,
-		.pull = PM_GPIO_PULL_DN,
-		.vin_sel = 2,
-		.function = PM_GPIO_FUNC_NORMAL,
-		.inv_int_pol = 0,
-	};
-	struct pm_gpio mcu_ap_int_2_cfg = {
-		.direction = PM_GPIO_DIR_IN,
-		.pull = PM_GPIO_PULL_DN,
-		.vin_sel = 2,
-		.function = PM_GPIO_FUNC_NORMAL,
-		.inv_int_pol = 0,
-	};
-	struct pm_gpio mcu_ap_int_cfg = {
-		.direction = PM_GPIO_DIR_IN,
-		.pull = PM_GPIO_PULL_DN,
-		.vin_sel = 2,
-		.function = PM_GPIO_FUNC_NORMAL,
-		.inv_int_pol = 0,
-	};
-	struct pm_gpio ap_mcu_nrst_cfg = {
-		.direction = PM_GPIO_DIR_IN,
-		.pull = PM_GPIO_PULL_DN,
-		.vin_sel = 2,
-		.function = PM_GPIO_FUNC_NORMAL,
-		.inv_int_pol = 0,
-	};
-
-	pm8xxx_gpio_config(GPIO_AP_MCU_INT, &ap_mcu_int_cfg);
-	pm8xxx_gpio_config(GPIO_MCU_AP_INT, &mcu_ap_int_cfg);
-	pm8xxx_gpio_config(GPIO_MCU_AP_INT_2, &mcu_ap_int_2_cfg);
-	if (system_rev >= 5)
-		pm8xxx_gpio_config(GPIO_MCU_NRST, &ap_mcu_nrst_cfg);
-	mdelay(1);
-	pr_info("[SSP] %s done\n", __func__);
-}
 
 static int initialize_ssp_gpio(void)
 {
@@ -5168,6 +5157,13 @@ static void __init apq8064_common_init(void)
 		platform_add_devices(common_not_mpq_devices,
 			ARRAY_SIZE(common_not_mpq_devices));
 	
+#ifdef CONFIG_KEYBOARD_CYPRESS_TOUCH_236
+	if (system_rev < 9)
+		platform_device_register(&touchkey_i2c_gpio_device);
+	else
+		platform_device_register(&touchkey_i2c_gpio_device_2);
+#endif
+
 	enable_ddr3_regulator();
 	msm_hsic_pdata.swfi_latency =
 		msm_rpmrs_levels[0].latency_us;
@@ -5214,8 +5210,12 @@ static void __init apq8064_common_init(void)
 #if defined(CONFIG_TOUCHSCREEN_SYNAPTICS_I2C_RMI) || defined(CONFIG_TOUCHSCREEN_ATMEL_MXTS)
 	printk(KERN_DEBUG"[TSP] System revision, LPM mode : %d %d\n",
 				system_rev, poweroff_charging);
-	if (!poweroff_charging) 
-		S5000_tsp_input_init(lcd_tsp_panel_version);
+	if (!poweroff_charging) {
+		if (sec_tsp_synaptics_mode)
+			S5000_tsp_input_init(lcd_tsp_panel_version);
+		else
+			mxt540s_tsp_input_init();
+		}
 #endif
 
 #if defined(CONFIG_VIDEO_MHL_V2)
@@ -5313,7 +5313,6 @@ static void __init samsung_jf_init(void)
 	msm8960_init_battery();
 #endif
 #ifdef CONFIG_SENSORS_SSP
-	clear_ssp_gpio();
 	sensor_power_on_vdd(SNS_PWR_ON, SNS_PWR_ON);
 	initialize_ssp_gpio();
 #endif

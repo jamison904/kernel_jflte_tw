@@ -2087,38 +2087,32 @@ static void bcm2079x_sw_i2c_config(void)
 		GPIO_CFG_NO_PULL, GPIO_CFG_2MA), 1);
 }
 #endif
-#define GPIO_NFC_FIRMWARE_AP	12
 static int __init bcm2079x_init(void)
 {
 	struct pm_gpio nfc_irq_cfg = {
 		.direction = PM_GPIO_DIR_IN,
-		.pull = PM_GPIO_PULL_DN,
+		.pull = PM_GPIO_PULL_NO,
 		.vin_sel = 2,
 		.function = PM_GPIO_FUNC_NORMAL,
 		.inv_int_pol = 0,
 	};
 	struct pm_gpio nfc_en_cfg = {
 		.direction = PM_GPIO_DIR_OUT,
-		.pull = PM_GPIO_PULL_DN,
+		.pull = PM_GPIO_PULL_UP_31P5,
 		.vin_sel = 2,
 		.function = PM_GPIO_FUNC_NORMAL,
 		.inv_int_pol = 0,
 	};
 	struct pm_gpio nfc_firmware_cfg = {
 		.direction = PM_GPIO_DIR_OUT,
-		.pull = PM_GPIO_PULL_NO,
+		.pull = PM_GPIO_PULL_UP_31P5,
 		.vin_sel = 2,
 		.function = PM_GPIO_FUNC_NORMAL,
 		.inv_int_pol = 0,
 	};
 	pm8xxx_gpio_config(GPIO_NFC_IRQ, &nfc_irq_cfg);
 	pm8xxx_gpio_config(GPIO_NFC_EN, &nfc_en_cfg);
-	if (system_rev > BOARD_REV13)
-		gpio_tlmm_config(GPIO_CFG(GPIO_NFC_FIRMWARE_AP, 0,
-			GPIO_CFG_OUTPUT, GPIO_CFG_NO_PULL,
-			GPIO_CFG_2MA), 1);
-	else
-		pm8xxx_gpio_config(GPIO_NFC_FIRMWARE, &nfc_firmware_cfg);
+	pm8xxx_gpio_config(GPIO_NFC_FIRMWARE, &nfc_firmware_cfg);
 #ifdef NFC_SW_I2C
 	bcm2079x_sw_i2c_config();
 #endif
@@ -2143,7 +2137,7 @@ static struct platform_device bcm2079x_i2c_gpio_device = {
 static struct bcm2079x_platform_data bcm2079x_i2c_pdata = {
 	.irq_gpio = GPIO_NFC_IRQ,
 	.en_gpio = GPIO_NFC_EN,
-	.wake_gpio = GPIO_NFC_FIRMWARE_AP,
+	.wake_gpio = GPIO_NFC_FIRMWARE,
 };
 
 static struct i2c_board_info nfc_bcm2079x_info[] __initdata = {
@@ -4257,6 +4251,15 @@ static struct gpio_keys_button gpio_keys_button[] = {
 		.debounce_interval = 5,
 	},
 	{
+		.code           = KEY_HOMEPAGE,
+		.gpio           = GPIO_KEY_HOME,
+		.desc           = "home_key",
+		.active_low     = 1,
+		.type		= EV_KEY,
+		.wakeup		= 1,
+		.debounce_interval = 5,
+	},
+	{
 		.code           = KEY_MENU,
 		.gpio           = GPIO_KEY_MENU,
 		.desc           = "menu_key",
@@ -4272,15 +4275,6 @@ static struct gpio_keys_button gpio_keys_button[] = {
 		.active_low     = 1,
 		.type		= EV_KEY,
 		.wakeup		= 0,
-		.debounce_interval = 5,
-	},
-	{
-		.code           = KEY_HOMEPAGE,
-		.gpio           = GPIO_KEY_HOME,
-		.desc           = "home_key",
-		.active_low     = 1,
-		.type		= EV_KEY,
-		.wakeup		= 1,
 		.debounce_interval = 5,
 	},
 };
@@ -5141,11 +5135,6 @@ static void __init apq8064_gpio_keys_init(void)
 	pm8xxx_gpio_config(GPIO_KEY_BACK, &param);
 }
 
-static void __init nfc_gpio_rev_init(void)
-{
-	if (system_rev < BOARD_REV14)
-		bcm2079x_i2c_pdata.wake_gpio = GPIO_NFC_FIRMWARE;
-}
 static void __init samsung_jf_init(void)
 {
 #ifdef CONFIG_SEC_DEBUG
@@ -5202,7 +5191,6 @@ static void __init samsung_jf_init(void)
 #endif
 #ifdef CONFIG_BCM2079X_NFC_I2C
 	bcm2079x_init();
-	nfc_gpio_rev_init();
 #endif
 	change_memory_power = &apq8064_change_memory_power;
 
