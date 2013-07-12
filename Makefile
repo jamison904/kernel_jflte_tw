@@ -1,7 +1,7 @@
 VERSION = 3
 PATCHLEVEL = 4
 SUBLEVEL = 0
-EXTRAVERSION =_Infamous_S4_Kernel_3.5
+EXTRAVERSION =_Infamous_S4_Kernel_3.6
 NAME = Saber-toothed Squirrel
 
 # *DOCUMENTATION*
