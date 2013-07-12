@@ -184,8 +184,7 @@ static int fat_write_end(struct file *file, struct address_space *mapping,
 }
 
 static ssize_t fat_direct_IO(int rw, struct kiocb *iocb,
-			     const struct iovec *iov,
-			     loff_t offset, unsigned long nr_segs)
+			     struct iov_iter *iter, loff_t offset)
 {
 	struct file *file = iocb->ki_filp;
 	struct address_space *mapping = file->f_mapping;
@@ -202,7 +201,7 @@ static ssize_t fat_direct_IO(int rw, struct kiocb *iocb,
 		 *
 		 * Return 0, and fallback to normal buffered write.
 		 */
-		loff_t size = offset + iov_length(iov, nr_segs);
+		loff_t size = offset + iov_iter_count(iter);
 		if (MSDOS_I(inode)->mmu_private < size)
 			return 0;
 	}
@@ -211,10 +210,9 @@ static ssize_t fat_direct_IO(int rw, struct kiocb *iocb,
 	 * FAT need to use the DIO_LOCKING for avoiding the race
 	 * condition of fat_get_block() and ->truncate().
 	 */
-	ret = blockdev_direct_IO(rw, iocb, inode, iov, offset, nr_segs,
-				 fat_get_block);
+	ret = blockdev_direct_IO(rw, iocb, inode, iter, offset, fat_get_block);
 	if (ret < 0 && (rw & WRITE))
-		fat_write_failed(mapping, offset + iov_length(iov, nr_segs));
+		fat_write_failed(mapping, offset + iov_iter_count(iter));
 
 	return ret;
 }
@@ -242,6 +240,72 @@ static const struct address_space_operations fat_aops = {
 	.bmap		= _fat_bmap
 };
 
+#if defined(CONFIG_VMWARE_MVP)
+int _fat_fallocate(struct inode *inode, loff_t len)
+{
+	struct super_block *sb = inode->i_sb;
+	struct msdos_sb_info *sbi = MSDOS_SB(sb);
+	int err;
+	sector_t nblocks, iblock;
+	unsigned short offset;
+
+	if (!S_ISREG(inode->i_mode)) {
+		printk(KERN_ERR "_fat_fallocate: supported only for regular files\n");
+		return -EOPNOTSUPP;
+	}
+
+	if (IS_IMMUTABLE(inode)) {
+		return -EPERM;
+	}
+
+	mutex_lock(&inode->i_mutex);
+
+	/* file is already big enough */
+	if (len <= i_size_read(inode)) {
+		mutex_unlock(&inode->i_mutex);
+		return 0;
+	}
+
+	nblocks = (len + sb->s_blocksize - 1 ) >> sb->s_blocksize_bits;
+	iblock = (MSDOS_I(inode)->mmu_private + sb->s_blocksize - 1) >> sb->s_blocksize_bits;
+
+	/* validate new size */
+	err = inode_newsize_ok(inode, len);
+	if (err) {
+		mutex_unlock(&inode->i_mutex);
+		return err;
+	}
+
+	/* check for available blocks on last cluster */
+	offset = (unsigned long)iblock & (sbi->sec_per_clus - 1);
+	if (offset) {
+		iblock += min((unsigned long) (sbi->sec_per_clus - offset),
+				(unsigned long) (nblocks - iblock));
+	}
+
+	/* now allocate new clusters */
+	while (iblock < nblocks) {
+		err = fat_add_cluster(inode);
+		if (err) {
+			break;
+		}
+
+		iblock += min((unsigned long) sbi->sec_per_clus,
+				(unsigned long) (nblocks - iblock));
+	}
+
+	/* update inode informations */
+	len = min(len, (loff_t)(iblock << sb->s_blocksize_bits));
+	i_size_write(inode, len);
+	MSDOS_I(inode)->mmu_private = len;
+	inode->i_mtime = inode->i_ctime = CURRENT_TIME_SEC;
+	mark_inode_dirty(inode);
+
+	mutex_unlock(&inode->i_mutex);
+
+	return err;
+}
+#endif
 /*
  * New FAT inode stuff. We do the following:
  *	a) i_ino is constant and has nothing with on-disk location.

@@ -1961,11 +1961,12 @@ static void clear_ssp_gpio(void)
 		.inv_int_pol = 0,
 	};
 	struct pm_gpio ap_mcu_nrst_cfg = {
-		.direction = PM_GPIO_DIR_IN,
-		.pull = PM_GPIO_PULL_DN,
+		.direction = PM_GPIO_DIR_OUT,
+		.pull = PM_GPIO_PULL_NO,
 		.vin_sel = 2,
 		.function = PM_GPIO_FUNC_NORMAL,
 		.inv_int_pol = 0,
+		.out_strength = PM_GPIO_STRENGTH_HIGH,
 	};
 
 	pm8xxx_gpio_config(GPIO_AP_MCU_INT, &ap_mcu_int_cfg);
@@ -1973,6 +1974,7 @@ static void clear_ssp_gpio(void)
 	pm8xxx_gpio_config(GPIO_MCU_AP_INT_2, &mcu_ap_int_2_cfg);
 	if (system_rev >= 5)
 		pm8xxx_gpio_config(GPIO_MCU_NRST, &ap_mcu_nrst_cfg);
+	gpio_set_value_cansleep(GPIO_MCU_NRST, 0);
 	mdelay(1);
 	pr_info("[SSP] %s done\n", __func__);
 }
@@ -2008,6 +2010,7 @@ static int initialize_ssp_gpio(void)
 		.vin_sel = 2,
 		.function = PM_GPIO_FUNC_NORMAL,
 		.inv_int_pol = 0,
+		.out_strength = PM_GPIO_STRENGTH_HIGH,
 	};
 
 	pr_info("[SSP]%s\n", __func__);
@@ -2129,7 +2132,9 @@ static int ssp_check_changes(void)
 */
 static void ssp_get_positions(int *acc, int *mag)
 {
-	if (system_rev > BOARD_REV09)
+	if (system_rev == BOARD_REV13)
+		*acc = MPU6500_TOP_RIGHT_UPPER;
+	else if (system_rev > BOARD_REV09)
 		*acc = K330_TOP_LEFT_UPPER;
 	else if (system_rev > BOARD_REV04)
 		*acc = MPU6500_TOP_RIGHT_UPPER;
@@ -3177,9 +3182,13 @@ static struct platform_device msm_tsens_device = {
 };
 
 static struct msm_thermal_data msm_thermal_pdata = {
-	.sensor_id = 7,
+	.sensor_id = 0,
 	.poll_ms = 250,
+#ifdef CONFIG_CPU_OVERCLOCK
+	.limit_temp_degC = 75,
+#else
 	.limit_temp_degC = 60,
+#endif
 	.temp_hysteresis_degC = 10,
 	.freq_step = 2,
 };

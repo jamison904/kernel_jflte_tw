@@ -34,7 +34,6 @@ config ARCH_MSM7X27
 	select MULTI_IRQ_HANDLER
 	select MSM_PROC_COMM_REGULATOR
 	select CLEANCACHE
-	select QCACHE
 	select MSM_PM2 if PM
 	select MSM_RUN_QUEUE_STATS if MSM_SOC_REV_A
 	select DONT_MAP_HOLE_AFTER_MEMBANK0
@@ -168,7 +167,6 @@ config ARCH_MSM8960
 	select ARCH_SPARSEMEM_ENABLE
 	select ARCH_HAS_HOLES_MEMORYMODEL
 	select CLEANCACHE
-	select QCACHE
 	select MSM_MULTIMEDIA_USE_ION
 	select MULTI_IRQ_HANDLER
 	select MSM_PM8X60 if PM
@@ -234,7 +232,6 @@ config ARCH_APQ8064
 	select CPU_HAS_L2_PMU
 	select HOLES_IN_ZONE if SPARSEMEM
 	select CLEANCACHE
-	select QCACHE
 	select MIGHT_HAVE_PCI
 	select ARCH_SUPPORTS_MSI
 	select ARM_HAS_SG_CHAIN
@@ -487,6 +484,12 @@ config MSM_REMOTE_SPINLOCK_SFPB
 	bool
 config MSM_ADM3
 	bool
+
+config MACH_JACTIVE
+	default n
+	bool "APQ8064 Samsung JACTIVE"
+	help
+	  Support for the Samsung J ACTIVE device.
 
 menu "MSM Board Selection"
 
@@ -1013,6 +1016,7 @@ config MACH_JACTIVE_EUR
 config MACH_JACTIVE_ATT
 	depends on ARCH_APQ8064
 	default n
+	select MACH_JACTIVE
 	bool "APQ8064 Samsung JACTIVE_ATT"
 	help
 	  Support for the Samsung J ACTIVE ATT device.
@@ -1752,6 +1756,25 @@ config MSM_CPU_FREQ_MIN
 	default 245760
 
 endif # CPU_FREQ_MSM
+
+config GPU_OVERCLOCK
+	bool "Enable GPU Overclocking option"
+	default n
+	help
+	  Kraint 600 ab GPU overclock up to 600 MHz
+
+config CPU_OVERCLOCK
+	bool "Enable CPU Overclocking option"
+	default n
+	help
+	  Krait overclocking up to 2.1 GHz
+
+config OC_ULTIMATE
+	bool "Ultimate CPU Overclocking"
+	depends on CPU_OVERCLOCK
+	default n
+	help
+	  Ultimate Krait overclocking up to 2.3 GHz
 
 config LOW_CPUCLOCKS
 	bool "Enable ultra low CPU clocks"
