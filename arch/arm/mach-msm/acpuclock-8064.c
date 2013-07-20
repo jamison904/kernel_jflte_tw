@@ -852,11 +852,9 @@ static ssize_t store_enable_google_mtp(struct kobject *kobj,
 	return count;
 }
 
-static struct global_attr enable_oc_attr = __ATTR(enable_oc, 0666, show_enable_oc, store_enable_oc);
 static struct global_attr enable_google_mtp_attr = __ATTR(enable_google_mtp, 0666, show_enable_google_mtp, store_enable_google_mtp);
 
 static struct attribute *acpuclock8064_attributes[] = {
-	&enable_oc_attr.attr,
 	&enable_google_mtp_attr.attr,
 	NULL,
 };
