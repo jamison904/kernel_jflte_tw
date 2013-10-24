@@ -637,6 +637,10 @@ irqreturn_t mdp4_isr(int irq, void *ptr)
 		pr_info("%s: UNDERRUN -- primary\n", __func__);
 		mdp4_stat.intr_underrun_p++;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+//		dump_underrun_pipe_info();
+>>>>>>> 57e1c01... Merge in MJ5
 =======
 //		dump_underrun_pipe_info();
 >>>>>>> 57e1c01... Merge in MJ5

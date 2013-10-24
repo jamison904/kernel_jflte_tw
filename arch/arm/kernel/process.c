@@ -263,7 +263,10 @@ void cpu_idle(void)
 				cpu_die();
 #endif
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+>>>>>>> 57e1c01... Merge in MJ5
 =======
 >>>>>>> 57e1c01... Merge in MJ5
 			/*

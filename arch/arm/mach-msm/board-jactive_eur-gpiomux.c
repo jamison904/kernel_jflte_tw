@@ -727,6 +727,9 @@ static struct msm_gpiomux_config apq8064_gsbi_configs[] __initdata = {
 		},
 	},
 	{
+<<<<<<< HEAD
+>>>>>>> 57e1c01... Merge in MJ5
+=======
 >>>>>>> 57e1c01... Merge in MJ5
 		.gpio      = 24,	/* GSBI2 I2C QUP SDA */
 		.settings = {
@@ -746,6 +749,10 @@ static struct msm_gpiomux_config apq8064_gsbi_configs[] __initdata = {
 		.settings = {
 			[GPIOMUX_SUSPENDED] = &gpio_spi_config,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+			[GPIOMUX_ACTIVE] = &gpio_spi_config,
+>>>>>>> 57e1c01... Merge in MJ5
 =======
 			[GPIOMUX_ACTIVE] = &gpio_spi_config,
 >>>>>>> 57e1c01... Merge in MJ5
@@ -756,6 +763,10 @@ static struct msm_gpiomux_config apq8064_gsbi_configs[] __initdata = {
 		.settings = {
 			[GPIOMUX_SUSPENDED] = &gpio_spi_config,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+			[GPIOMUX_ACTIVE] = &gpio_spi_config,
+>>>>>>> 57e1c01... Merge in MJ5
 =======
 			[GPIOMUX_ACTIVE] = &gpio_spi_config,
 >>>>>>> 57e1c01... Merge in MJ5
@@ -766,6 +777,10 @@ static struct msm_gpiomux_config apq8064_gsbi_configs[] __initdata = {
 		.settings = {
 			[GPIOMUX_SUSPENDED] = &gpio_spi_config,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+			[GPIOMUX_ACTIVE] = &gpio_spi_config,
+>>>>>>> 57e1c01... Merge in MJ5
 =======
 			[GPIOMUX_ACTIVE] = &gpio_spi_config,
 >>>>>>> 57e1c01... Merge in MJ5
@@ -776,6 +791,10 @@ static struct msm_gpiomux_config apq8064_gsbi_configs[] __initdata = {
 		.settings = {
 			[GPIOMUX_SUSPENDED] = &gpio_spi_config,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+			[GPIOMUX_ACTIVE] = &gpio_spi_config,
+>>>>>>> 57e1c01... Merge in MJ5
 =======
 			[GPIOMUX_ACTIVE] = &gpio_spi_config,
 >>>>>>> 57e1c01... Merge in MJ5
@@ -1371,6 +1390,8 @@ static struct msm_gpiomux_config msm8064_sd_det_config[] = {
 		.settings = {
 			[GPIOMUX_SUSPENDED] = &sd_det_suspended_cfg,
 			[GPIOMUX_ACTIVE] = &sd_det_active_cfg,
+<<<<<<< HEAD
+=======
 		},
 	},
 };
@@ -1388,10 +1409,31 @@ static struct msm_gpiomux_config msm8064_ls_en_config[] = {
 		.gpio = 64,	/* Level Shifter Enable */
 		.settings = {
 			[GPIOMUX_SUSPENDED] = &ls_en_suspended_cfg,
+>>>>>>> 57e1c01... Merge in MJ5
 		},
 	},
 };
 
+<<<<<<< HEAD
+#ifdef CONFIG_MMC_MSM_SDC4_SUPPORT
+
+static struct gpiomux_setting ls_en_suspended_cfg = {
+	.func = GPIOMUX_FUNC_GPIO,
+	.pull = GPIOMUX_PULL_DOWN,
+	.dir = GPIOMUX_OUT_LOW,
+};
+
+static struct msm_gpiomux_config msm8064_ls_en_config[] = {
+	{
+		.gpio = 64,	/* Level Shifter Enable */
+		.settings = {
+			[GPIOMUX_SUSPENDED] = &ls_en_suspended_cfg,
+		},
+	},
+};
+
+=======
+>>>>>>> 57e1c01... Merge in MJ5
 #endif
 
 #if defined(CONFIG_LEDS_AN30259A)

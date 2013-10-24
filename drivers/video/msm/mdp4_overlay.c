@@ -2776,7 +2776,11 @@ static int mdp4_calc_pipe_mdp_clk(struct msm_fb_data_type *mfd,
 		yscale = pipe->dst_h;
 		yscale <<= shift;
 <<<<<<< HEAD
+<<<<<<< HEAD
 		yscale /= pipe->dst_h;
+=======
+		yscale /= dst_h;
+>>>>>>> 57e1c01... Merge in MJ5
 =======
 		yscale /= dst_h;
 >>>>>>> 57e1c01... Merge in MJ5

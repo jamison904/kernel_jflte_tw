@@ -91,7 +91,10 @@ CONFIG_CGROUP_FREEZER=y
 CONFIG_CGROUP_CPUACCT=y
 CONFIG_RESOURCE_COUNTERS=y
 <<<<<<< HEAD:arch/arm/configs/MY_jf_defconfig
+<<<<<<< HEAD:arch/arm/configs/MY_jf_defconfig
 # CONFIG_CGROUP_MEM_RES_CTLR_KMEM is not set
+=======
+>>>>>>> 57e1c01... Merge in MJ5:arch/arm/configs/KT_jf_defconfig
 =======
 >>>>>>> 57e1c01... Merge in MJ5:arch/arm/configs/KT_jf_defconfig
 # CONFIG_CGROUP_PERF is not set

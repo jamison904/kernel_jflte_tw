@@ -748,9 +748,12 @@ static int sec_chg_set_property(struct power_supply *psy,
 		POWER_SUPPLY_TYPE_WIRELESS].input_current_limit;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	/* check and unlock */
 	check_charger_unlock_state(charger);
 
+=======
+>>>>>>> 57e1c01... Merge in MJ5
 =======
 >>>>>>> 57e1c01... Merge in MJ5
 	switch (psp) {

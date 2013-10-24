@@ -540,11 +540,14 @@ _kgsl_sharedmem_page_alloc(struct kgsl_memdesc *memdesc,
 	align = (memdesc->flags & KGSL_MEMALIGN_MASK) >> KGSL_MEMALIGN_SHIFT;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	/*
 	 * Change memory allocation size to 4K from 64K
 	 * Sluggish Problem
 	 */
 #if 0
+=======
+>>>>>>> 57e1c01... Merge in MJ5
 =======
 >>>>>>> 57e1c01... Merge in MJ5
 	page_size = (align >= ilog2(SZ_64K) && size >= SZ_64K)

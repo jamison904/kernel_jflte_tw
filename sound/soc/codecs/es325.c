@@ -257,6 +257,9 @@ static u8 es325_internal_route_2mic_speaker[10] = {
 	0xff		/* terminate */
 };
 #else
+<<<<<<< HEAD
+>>>>>>> 57e1c01... Merge in MJ5
+=======
 >>>>>>> 57e1c01... Merge in MJ5
 /* 2-mic Speaker NB (2-mic FT)(NS on) */
 static u8 es325_internal_route_2mic_speaker[10] = {	

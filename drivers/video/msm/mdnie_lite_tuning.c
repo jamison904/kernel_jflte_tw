@@ -110,6 +110,9 @@ const char scenario_name[MAX_mDNIe_MODE][16] = {
 	"BROWSER_MODE",
 	"eBOOK_MODE",
 	"EMAIL_MODE",
+<<<<<<< HEAD
+>>>>>>> 57e1c01... Merge in MJ5
+=======
 >>>>>>> 57e1c01... Merge in MJ5
 #if defined(CONFIG_TDMB)
 	"DMB_MODE",
@@ -521,7 +524,18 @@ void mDNIe_Set_Mode(enum Lcd_mDNIe_UI mode)
 			INPUT_PAYLOAD2(AUTO_EBOOK_2);
 		}
 #endif
+<<<<<<< HEAD
+=======
 		break;
+
+#if !defined(CONFIG_SUPPORT_DISPLAY_OCTA_TFT)
+	case mDNIe_EMAIL_MODE:
+		DPRINT(" = EMAIL MODE =\n");
+		INPUT_PAYLOAD1(EMAIL_1);
+		INPUT_PAYLOAD2(EMAIL_2);
+>>>>>>> 57e1c01... Merge in MJ5
+		break;
+#endif
 
 #if !defined(CONFIG_SUPPORT_DISPLAY_OCTA_TFT)
 	case mDNIe_EMAIL_MODE:

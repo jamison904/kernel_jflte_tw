@@ -22,7 +22,11 @@
  * other than the GPL, without Broadcom's express prior written consent.
  *
 <<<<<<< HEAD
+<<<<<<< HEAD
  * $Id: dhd_cdc.c 391745 2013-03-19 08:35:39Z $
+=======
+ * $Id: dhd_cdc.c 424070 2013-09-16 05:39:06Z $
+>>>>>>> 57e1c01... Merge in MJ5
 =======
  * $Id: dhd_cdc.c 424070 2013-09-16 05:39:06Z $
 >>>>>>> 57e1c01... Merge in MJ5
@@ -1429,10 +1433,13 @@ _dhd_wlfc_mac_entry_update(athost_wl_status_info_t* ctx, wlfc_mac_descriptor_t* 
 		/* enable after packets are queued-deqeued properly.
 		pktq_flush(dhd->osh, &entry->psq, FALSE, NULL, 0);
 <<<<<<< HEAD
+<<<<<<< HEAD
 		*/
 
 		memset(&entry->ea[0],0, ETHER_ADDR_LEN);
 =======
+=======
+>>>>>>> 57e1c01... Merge in MJ5
 		 */
 		memset(&entry->ea[0], 0, ETHER_ADDR_LEN);
 >>>>>>> 57e1c01... Merge in MJ5

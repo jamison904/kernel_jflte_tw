@@ -2039,7 +2039,11 @@ static int _hardware_dequeue(struct ci13xxx_ep *mEp, struct ci13xxx_req *mReq)
 		if ((TD_STATUS_ACTIVE & mReq->zptr->token) != 0)
 			return -EBUSY;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+		
+>>>>>>> 57e1c01... Merge in MJ5
 =======
 		
 >>>>>>> 57e1c01... Merge in MJ5

@@ -345,7 +345,11 @@ resubmit_int_urb:
 					__func__, status);
 		}
 <<<<<<< HEAD
+<<<<<<< HEAD
 		//pr_info("[CHKRA:%d]>", iface_num);
+=======
+		DBG_NOTI("[CHKRA:%d]>", iface_num);
+>>>>>>> 57e1c01... Merge in MJ5
 =======
 		DBG_NOTI("[CHKRA:%d]>", iface_num);
 >>>>>>> 57e1c01... Merge in MJ5
@@ -371,6 +375,9 @@ int rmnet_usb_ctrl_start_rx(struct rmnet_ctrl_dev *dev)
 =======
 	} else
 		DBG_NOTI("[CHKRA:%d]>", iface_num);
+<<<<<<< HEAD
+>>>>>>> 57e1c01... Merge in MJ5
+=======
 >>>>>>> 57e1c01... Merge in MJ5
 
 	return retval;

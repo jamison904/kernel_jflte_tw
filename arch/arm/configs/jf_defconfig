@@ -7,8 +7,13 @@ CONFIG_ZRAM=y
 CONFIG_ZRAM_DEBUG=y
 CONFIG_ZRAM_FOR_ANDROID=y
 <<<<<<< HEAD
+<<<<<<< HEAD
 CONFIG_IKCONFIG=y
 CONFIG_IKCONFIG_PROC=y
+=======
+# CONFIG_IKCONFIG is not set
+# CONFIG_IKCONFIG_PROC is not set
+>>>>>>> 57e1c01... Merge in MJ5
 =======
 # CONFIG_IKCONFIG is not set
 # CONFIG_IKCONFIG_PROC is not set
@@ -716,8 +721,11 @@ CONFIG_SEC_RESTRICT_ROOTING_LOG=y
 CONFIG_SEC_FORKHANG_DEBUG=y
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 CONFIG_GC_OPTIMIZE_ALOT=y
 =======
+=======
+>>>>>>> 57e1c01... Merge in MJ5
 CONFIG_SEC_GPIO_DVS=y
 
 # CONFIG_SCSI_WAIT_SCAN is not set
@@ -729,4 +737,7 @@ CONFIG_TIMA_LOG=y
 # CONFIG_USB_GSPCA is not set
 CONFIG_CRYPTO_RNG=y
 CONFIG_CRYPTO_ANSI_CPRNG=y
+<<<<<<< HEAD
+>>>>>>> 57e1c01... Merge in MJ5
+=======
 >>>>>>> 57e1c01... Merge in MJ5
