@@ -897,7 +897,11 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
 	struct input_dev *input;
 	int i, error;
 	int wakeup = 0;
+<<<<<<< HEAD
 	int ret=0;
+=======
+	int ret = 0;
+>>>>>>> 57e1c01... Merge in MJ5
 	struct device *sec_key;
 
 	if (!pdata) {

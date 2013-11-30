@@ -34,6 +34,7 @@
 #include <linux/battery/sec_charger.h>
 
 #define SEC_BATTERY_PMIC_NAME ""
+#define SHORT_BATTERY_STANDARD		100
 
 static unsigned int sec_bat_recovery_mode;
 static sec_charging_current_t charging_current_table[] = {
@@ -291,8 +292,19 @@ static int sec_bat_get_cable_from_extended_cable_type(
 				cable_type = cable_main;
 			}
 			break;
+		case ONLINE_SUB_TYPE_SMART_OTG:
+				cable_type = POWER_SUPPLY_TYPE_USB;
+				charge_current_max = 1000;
+				charge_current = 1000;
+				break;
+		case ONLINE_SUB_TYPE_SMART_NOTG:
+				cable_type = POWER_SUPPLY_TYPE_MAINS;
+				charge_current_max = 1900;
+				charge_current = 1600;
+				break;
 		default:
 			cable_type = cable_main;
+			charge_current_max = 0;
 			break;
 		}
 		break;
@@ -369,6 +381,20 @@ static bool sec_bat_check_callback(void)
 				__func__, POWER_SUPPLY_PROP_PRESENT, ret);
 			value.intval = 1;
 		}
+#if defined(CONFIG_BOARD_JF_REFRESH)
+		{
+			int data;
+			struct pm8xxx_adc_chan_result result;
+
+			pm8xxx_adc_read(ADC_MPP_1_AMUX8, &result);
+			data = ((int)result.physical) / 1000;
+			pr_info("%s: result.physical(%d)\n", __func__, data);
+			if(data < SHORT_BATTERY_STANDARD) {
+				pr_info("%s: Short Battery is connected.\n", __func__);
+				value.intval = 0;
+			}
+		}
+#endif
 	}
 
 	return value.intval;
@@ -496,7 +522,20 @@ static int polling_time_table[] = {
 	60 * 60,	/* SLEEP */
 };
 
-#if defined(CONFIG_MACH_JF_ATT) || defined(CONFIG_MACH_JF_TMO) || \
+#if defined(CONFIG_BOARD_JF_REFRESH)
+/* for MAX17048 */
+static struct battery_data_t fusion3_battery_data[] = {
+	/* SDI battery data (High voltage 4.35V) */
+	{
+		.RCOMP0 = 0x77,
+		.RCOMP_charging = 0x70,
+		.temp_cohot = -700,
+		.temp_cocold = -4875,
+		.is_using_model_data = true,
+		.type_str = "SDI",
+	}
+};
+#elif defined(CONFIG_MACH_JF_ATT) || defined(CONFIG_MACH_JF_TMO) || \
 	defined(CONFIG_MACH_JF_SPR) || defined(CONFIG_MACH_JF_USC) || \
 	defined(CONFIG_MACH_JF_VZW)
 /* for MAX17048 */
@@ -694,6 +733,21 @@ sec_battery_platform_data_t sec_battery_pdata = {
 	.temp_high_recovery_lpm = 400,
 	.temp_low_threshold_lpm = -50,
 	.temp_low_recovery_lpm = 0,
+#elif defined(CONFIG_BOARD_JF_REFRESH)
+	.temp_high_threshold_event = 600,
+	.temp_high_recovery_event = 400,
+	.temp_low_threshold_event = -30,
+	.temp_low_recovery_event = 0,
+
+	.temp_high_threshold_normal = 550,
+	.temp_high_recovery_normal = 430,
+	.temp_low_threshold_normal = -30,
+	.temp_low_recovery_normal = 0,
+
+	.temp_high_threshold_lpm = 495,
+	.temp_high_recovery_lpm = 448,
+	.temp_low_threshold_lpm = -10,
+	.temp_low_recovery_lpm = 20,
 #elif defined(CONFIG_MACH_JF_SPR)
 	.temp_high_threshold_event = 600,
 	.temp_high_recovery_event = 400,
@@ -705,7 +759,7 @@ sec_battery_platform_data_t sec_battery_pdata = {
 	.temp_low_threshold_normal = -30,
 	.temp_low_recovery_normal = 0,
 
-	.temp_high_threshold_lpm = 473,
+	.temp_high_threshold_lpm = 495,
 	.temp_high_recovery_lpm = 448,
 	.temp_low_threshold_lpm = -10,
 	.temp_low_recovery_lpm = 20,
