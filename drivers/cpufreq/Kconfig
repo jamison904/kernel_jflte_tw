@@ -124,6 +124,31 @@ config CPU_FREQ_DEFAULT_GOV_INTELLIDEMAND
 	  Use the CPUFreq governor 'intellidemand' as default. This is
 	  based on Ondemand with browsing detection based on GPU loading
 
+config CPU_FREQ_DEFAULT_GOV_SMARTASSH3
+	bool "smartassH3"
+	select CPU_FREQ_GOV_SMARTASSH3
+	help
+	  Use the CPUFreq governor 'slp' as default.
+
+config CPU_FREQ_DEFAULT_GOV_SLP
+	bool "slp"
+	select CPU_FREQ_GOV_SLP
+	help
+	  Use the CPUFreq governor 'slp' as default.
+
+config CPU_FREQ_DEFAULT_GOV_WHEATLEY
+	bool "wheatley"
+	select CPU_FREQ_GOV_WHEATLEY
+	select CPU_FREQ_GOV_PERFORMANCE
+	---help---
+	  Use the CPUFreq governor 'wheatley' as default.
+
+config CPU_FREQ_DEFAULT_GOV_CONSERVATIVEX
+	bool "conservativex"
+	select CPU_FREQ_GOV_CONSERVATIVEX
+	help
+	  Default governor of BioShock.
+
 endchoice
 
 config CPU_FREQ_GOV_PERFORMANCE
@@ -227,6 +252,25 @@ config CPU_FREQ_GOV_CONSERVATIVE
 	  For details, take a look at linux/Documentation/cpu-freq.
 
 	  If in doubt, say N.
+
+config CPU_FREQ_GOV_SLP
+	tristate "'slp' cpufreq policy governor"
+
+config CPU_FREQ_GOV_SMARTASSH3
+	tristate "'smartassH3' cpufreq governor"
+	depends on CPU_FREQ
+	help
+    		'smartassH3' - a "smart" governor
+
+config CPU_FREQ_GOV_WHEATLEY
+	tristate "'wheatley' cpufreq governor"
+	depends on CPU_FREQ
+
+config CPU_FREQ_GOV_CONSERVATIVEX
+	tristate "'conservativex' cpufreq governor"
+	depends on CPU_FREQ
+	help
+	  'conservativex' - less aggressive version of conservative
 
 config SEC_DVFS
 	bool "DVFS job"
