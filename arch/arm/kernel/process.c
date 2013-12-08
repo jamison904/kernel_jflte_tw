@@ -236,6 +236,9 @@ static void default_idle(void)
 void (*pm_idle)(void) = default_idle;
 EXPORT_SYMBOL(pm_idle);
 
+#ifdef CONFIG_ZRAM_FOR_ANDROID
+extern void could_cswap(void);
+#endif /* CONFIG_ZRAM_FOR_ANDROID */
 
 /*
  * The idle thread, has rather strange semantics for calling pm_idle,
@@ -253,19 +256,9 @@ void cpu_idle(void)
 		tick_nohz_idle_enter();
 		rcu_idle_enter();
 		while (!need_resched()) {
-
 #ifdef CONFIG_ZRAM_FOR_ANDROID
 			could_cswap();
 #endif /* CONFIG_ZRAM_FOR_ANDROID */
-
-#ifdef CONFIG_HOTPLUG_CPU
-			if (cpu_is_offline(smp_processor_id()))
-				cpu_die();
-#endif
-<<<<<<< HEAD
-
-=======
->>>>>>> 57e1c01... Merge in MJ5
 			/*
 			 * We need to disable interrupts here
 			 * to ensure we don't miss a wakeup call.
@@ -294,6 +287,10 @@ void cpu_idle(void)
 		tick_nohz_idle_exit();
 		idle_notifier_call_chain(IDLE_END);
 		schedule_preempt_disabled();
+#ifdef CONFIG_HOTPLUG_CPU
+		if (cpu_is_offline(smp_processor_id()))
+			cpu_die();
+#endif
 	}
 }
 
@@ -327,7 +324,6 @@ void machine_shutdown(void)
 void machine_halt(void)
 {
 	machine_shutdown();
-	local_irq_disable();
 	while (1);
 }
 
@@ -353,7 +349,6 @@ void machine_restart(char *cmd)
 
 	/* Whoops - the platform was unable to reboot. Tell the user! */
 	printk("Reboot failed -- System halted\n");
-	local_irq_disable();
 	while (1);
 }
 

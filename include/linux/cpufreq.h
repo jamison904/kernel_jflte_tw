@@ -356,8 +356,8 @@ int get_min_freq(void);
 #define MAX_FREQ_LIMIT		get_max_freq() /* 1512000 */
 #define MIN_FREQ_LIMIT		get_min_freq() /* 384000 */
 
-#define MIN_TOUCH_LIMIT		1134000
-#define MIN_TOUCH_LIMIT_SECOND	810000
+#define MIN_TOUCH_LIMIT		1674000
+#define MIN_TOUCH_LIMIT_SECOND	1350000
 
 #ifdef CONFIG_TARGET_SERIES_DALI
 #define MAX_UNICPU_LIMIT	1188000
@@ -424,12 +424,6 @@ extern struct cpufreq_governor cpufreq_gov_interactive;
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_INTELLIDEMAND)
 extern struct cpufreq_governor cpufreq_gov_intellidemand;
 #define CPUFREQ_DEFAULT_GOVERNOR        (&cpufreq_gov_intellidemand)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_HYPER)
-extern struct cpufreq_governor cpufreq_gov_hyper;
-#define CPUFREQ_DEFAULT_GOVERNOR        (&cpufreq_gov_hyper)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_CONSERVATIVEX)
-extern struct cpufreq_governor cpufreq_gov_conservativex;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_conservativex)
 #endif
 
 

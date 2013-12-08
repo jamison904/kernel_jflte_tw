@@ -1535,7 +1535,7 @@ static int usb_if_uevent(struct device *dev, struct kobj_uevent_env *env)
 
 	if (add_uevent_var(env,
 		   "MODALIAS=usb:"
-		   "v%04Xp%04Xd%04Xdc%02Xdsc%02Xdp%02Xic%02Xisc%02Xip%02X",
+		   "v%04Xp%04Xd%04Xdc%02Xdsc%02Xdp%02Xic%02Xisc%02Xip%02Xin%02X",
 		   le16_to_cpu(usb_dev->descriptor.idVendor),
 		   le16_to_cpu(usb_dev->descriptor.idProduct),
 		   le16_to_cpu(usb_dev->descriptor.bcdDevice),
@@ -1544,7 +1544,8 @@ static int usb_if_uevent(struct device *dev, struct kobj_uevent_env *env)
 		   usb_dev->descriptor.bDeviceProtocol,
 		   alt->desc.bInterfaceClass,
 		   alt->desc.bInterfaceSubClass,
-		   alt->desc.bInterfaceProtocol))
+		   alt->desc.bInterfaceProtocol,
+		   alt->desc.bInterfaceNumber))
 		return -ENOMEM;
 
 	return 0;
@@ -1836,35 +1837,6 @@ free_interfaces:
 			configuration, alt->desc.bInterfaceNumber);
 	}
 	kfree(new_interfaces);
-
-	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
-			      USB_REQ_SET_CONFIGURATION, 0, configuration, 0,
-			      NULL, 0, USB_CTRL_SET_TIMEOUT);
-	if (ret < 0 && cp) {
-		/*
-		 * All the old state is gone, so what else can we do?
-		 * The device is probably useless now anyway.
-		 */
-		usb_hcd_alloc_bandwidth(dev, NULL, NULL, NULL);
-		for (i = 0; i < nintf; ++i) {
-			usb_disable_interface(dev, cp->interface[i], true);
-			put_device(&cp->interface[i]->dev);
-			cp->interface[i] = NULL;
-		}
-		cp = NULL;
-	}
-
-	dev->actconfig = cp;
-	mutex_unlock(hcd->bandwidth_mutex);
-
-	if (!cp) {
-		usb_set_device_state(dev, USB_STATE_ADDRESS);
-
-		/* Leave LPM disabled while the device is unconfigured. */
-		usb_autosuspend_device(dev);
-		return ret;
-	}
-	usb_set_device_state(dev, USB_STATE_CONFIGURED);
 
 	if (cp->string == NULL &&
 			!(dev->quirks & USB_QUIRK_CONFIG_INTF_STRINGS))

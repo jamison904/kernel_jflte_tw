@@ -119,9 +119,8 @@ static void initialize_variable(struct ssp_data *data)
 	data->prox_device = NULL;
 	data->light_device = NULL;
 	data->ges_device = NULL;
-#if STEP_SENSOR
+
 	data->step_count_total = 0;
-#endif
 	initialize_function_pointer(data);
 }
 

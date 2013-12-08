@@ -733,6 +733,7 @@ extern struct mdp_hist_mgmt *mdp_hist_mgmt_array[];
 
 void mdp_hw_init(void);
 int mdp_ppp_pipe_wait(void);
+void mdp_pipe_kickoff_simplified(uint32 term);
 void mdp_pipe_kickoff(uint32 term, struct msm_fb_data_type *mfd);
 void mdp_clk_ctrl(int on);
 void mdp_pipe_ctrl(MDP_BLOCK_TYPE block, MDP_BLOCK_POWER_STATE state,
@@ -777,8 +778,6 @@ int mdp_lcdc_on(struct platform_device *pdev);
 int mdp_lcdc_off(struct platform_device *pdev);
 void mdp_lcdc_update(struct msm_fb_data_type *mfd);
 void mdp4_overlay_dsi_video_start(void);
-
-
 #ifdef CONFIG_FB_MSM_MDP303
 int mdp_dsi_video_on(struct platform_device *pdev);
 int mdp_dsi_video_off(struct platform_device *pdev);
@@ -834,20 +833,23 @@ int mdp_clk_round_rate(u32 rate);
 unsigned long mdp_get_core_clk(void);
 
 #ifdef CONFIG_MSM_BUS_SCALING
-int mdp_bus_scale_update_request(u64 ab, u64 ib);
+int mdp_bus_scale_update_request(u64 ab_p0, u64 ib_p0, u64 ab_p1, u64 ib_p1);
+
 int mdp_bus_scale_restore_request(void);
 #else
-static inline int mdp_bus_scale_update_request(u64 ab,
-					       u64 ib)
-{
-	return 0;
-}
+static inline int mdp_bus_scale_update_request(u64 ab_p0,
+                                              u64 ib_p0,
+                                              u64 ab_p1,
+                                              u64 ib_p1)
+ {
+        return 0;
+ }
+
  
 static int mdp_bus_scale_restore_request(void) 
 { 
  return 0; 
 } 
-
 #endif
 void mdp_dma_vsync_ctrl(int enable);
 void mdp_dma_video_vsync_ctrl(int enable);
@@ -946,13 +948,11 @@ static inline void mdp_vid_quant_set(void)
 #define lut2g(lut) ((lut & G_MASK) >> G_SHIFT)
 #define lut2b(lut) ((lut & B_MASK) >> B_SHIFT)
 
-#ifdef CONFIG_LCD_KCAL
 #define NUM_QLUT  256
 #define MAX_KCAL_V (NUM_QLUT-1)
 #define scaled_by_kcal(rgb, kcal) \
 		(((((unsigned int)(rgb) * (unsigned int)(kcal)) << 16) / \
 		(unsigned int)MAX_KCAL_V) >> 16)
-#endif
 int mdp_preset_lut_update_lcdc(struct fb_cmap *cmap, uint32_t *internal_lut);
 #endif
 #endif /* MDP_H */
