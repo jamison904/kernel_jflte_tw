@@ -1,7 +1,7 @@
 time_start=$(date +%s.%N)
 
 echo "Make the kernel"
-make VARIANT_DEFCONFIG=jf_tmo_defconfig SELINUX_DEFCONFIG=jfselinux_defconfig SELINUX_LOG_DEFCONFIG=jfselinux_log_defconfig MY_jf_defconfig
+make VARIANT_DEFCONFIG=jf_tmo_defconfig SELINUX_DEFCONFIG=jfselinux_defconfig SELINUX_LOG_DEFCONFIG=jfselinux_log_defconfig jf_defconfig
 
 echo "Making"
 	make -j5
