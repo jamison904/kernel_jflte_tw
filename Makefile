@@ -1,7 +1,7 @@
 VERSION = 3
 PATCHLEVEL = 4
 SUBLEVEL = 59
-EXTRAVERSION =_BioShock_3.0_
+EXTRAVERSION =_BioShock_4.0
 NAME = Saber-toothed Squirrel
 
 # *DOCUMENTATION*
