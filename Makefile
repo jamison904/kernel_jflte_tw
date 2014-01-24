@@ -12,6 +12,7 @@ PATCHLEVEL = 4
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 SUBLEVEL = 59
 EXTRAVERSION =_BioShock_4.0
 =======
@@ -49,6 +50,9 @@ SUBLEVEL = 70
 =======
 SUBLEVEL = 71
 >>>>>>> ef66d69... Linux 3.4.71
+=======
+SUBLEVEL = 72
+>>>>>>> 51c8636... Linux 3.4.72
 EXTRAVERSION =
 >>>>>>> acdaac7... Linux 3.4.60
 NAME = Saber-toothed Squirrel
