@@ -1,80 +1,7 @@
 VERSION = 3
 PATCHLEVEL = 4
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-SUBLEVEL = 59
-EXTRAVERSION =_BioShock_4.0
-=======
-SUBLEVEL = 60
-=======
-SUBLEVEL = 61
->>>>>>> 5ced409... Linux 3.4.61
-=======
-SUBLEVEL = 62
->>>>>>> a1502ce... Linux 3.4.62
-=======
-SUBLEVEL = 63
->>>>>>> 9eab54c... Linux 3.4.63
-=======
-SUBLEVEL = 64
->>>>>>> 05c95a5... Linux 3.4.64
-=======
-SUBLEVEL = 65
->>>>>>> 8f20afa... Linux 3.4.65
-=======
-SUBLEVEL = 66
->>>>>>> 4c7c78a... Linux 3.4.66
-=======
-SUBLEVEL = 67
->>>>>>> aae4f15... Linux 3.4.67
-=======
-SUBLEVEL = 68
->>>>>>> aec1ed0... Linux 3.4.68
-=======
-SUBLEVEL = 69
->>>>>>> 1551eaf... Linux 3.4.69
-=======
-SUBLEVEL = 70
->>>>>>> 970bd38... Linux 3.4.70
-=======
-SUBLEVEL = 71
->>>>>>> ef66d69... Linux 3.4.71
-=======
-SUBLEVEL = 72
->>>>>>> 51c8636... Linux 3.4.72
-=======
-SUBLEVEL = 73
->>>>>>> ccdcea9... Linux 3.4.73
-=======
-SUBLEVEL = 74
->>>>>>> 41dc8ff... Linux 3.4.74
-=======
-SUBLEVEL = 75
->>>>>>> c06c635... Linux 3.4.75
-=======
-SUBLEVEL = 76
->>>>>>> aab917b... Linux 3.4.76
-=======
 SUBLEVEL = 77
->>>>>>> 724d2a4... Linux 3.4.77
 EXTRAVERSION =
->>>>>>> acdaac7... Linux 3.4.60
 NAME = Saber-toothed Squirrel
 
 # *DOCUMENTATION*
@@ -268,7 +195,7 @@ export KBUILD_BUILDHOST := $(SUBARCH)
 #ARCH		?= $(SUBARCH)
 #CROSS_COMPILE	?= $(CONFIG_CROSS_COMPILE:"%"=%)
 ARCH		?= arm
-CROSS_COMPILE	= /home/jamison904/android/toolchain/eabi-linaro-4.7/bin/arm-eabi-
+CROSS_COMPILE	= /home/jamison/android/toolchain/eabi-linaro-4.7/bin/arm-eabi-
 
 # Architecture as present in compile.h
 UTS_MACHINE 	:= $(ARCH)
