@@ -1577,15 +1577,7 @@ void input_reset_device(struct input_dev *dev)
 		 */
 		if (!poweroff_charging) {
 			spin_lock_irq(&dev->event_lock);
-<<<<<<< HEAD
-<<<<<<< HEAD
-#if !defined(CONFIG_MACH_JACTIVE_ATT)
-=======
 #if !defined(CONFIG_MACH_JACTIVE_ATT) && !defined(CONFIG_MACH_JACTIVE_EUR)
->>>>>>> 57e1c01... Merge in MJ5
-=======
-#if !defined(CONFIG_MACH_JACTIVE_ATT) && !defined(CONFIG_MACH_JACTIVE_EUR)
->>>>>>> 57e1c01... Merge in MJ5
 			input_dev_release_keys(dev);
 #endif
 			spin_unlock_irq(&dev->event_lock);
@@ -1720,10 +1712,6 @@ void input_set_capability(struct input_dev *dev, unsigned int type, unsigned int
 		break;
 
 	case EV_ABS:
-		input_alloc_absinfo(dev);
-		if (!dev->absinfo)
-			return;
-
 		__set_bit(code, dev->absbit);
 		break;
 

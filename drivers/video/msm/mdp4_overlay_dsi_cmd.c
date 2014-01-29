@@ -397,7 +397,7 @@ int mdp4_dsi_cmd_pipe_commit(int cndx, int wait)
 	pr_debug("%s: kickoff, pid=%d\n", __func__, current->pid);
 	/* kickoff overlay engine */
 	mdp4_stat.kickoff_ov0++;
-	outpdw(MDP_BASE + 0x0004, 0);
+	mdp_pipe_kickoff_simplified(MDP_OVERLAY0_TERM);
 	mb(); /* make sure kickoff ececuted */
 	spin_unlock_irqrestore(&vctrl->spin_lock, flags);
 
@@ -878,7 +878,9 @@ static void mdp4_overlay_update_dsi_cmd(struct msm_fb_data_type *mfd)
 
 	/* TE enabled */
 	mdp4_mipi_vsync_enable(mfd, pipe, 0);
-
+	
+	mdp4_overlay_mdp_pipe_req(pipe, mfd);
+	mdp4_calc_blt_mdp_bw(mfd, pipe);
 	MDP_OUTP(MDP_BASE + 0x021c, 10); /* read pointer */
 
 	/*

@@ -161,8 +161,18 @@ static int msm_fb_detect_panel(const char *name)
 	return -ENODEV;
 }
 
+#ifdef CONFIG_UPDATE_LCDC_LUT
+int update_preset_lcdc_lut(void)
+{
+	return 0;
+}
+#endif
+
 static struct msm_fb_platform_data msm_fb_pdata = {
 	.detect_client = msm_fb_detect_panel,
+#ifdef CONFIG_UPDATE_LCDC_LUT
+	.update_lcdc_lut = update_preset_lcdc_lut,
+#endif
 };
 
 static struct platform_device msm_fb_device = {
@@ -381,16 +391,6 @@ static bool oled_power_on;
 /* [junesok] Power on for samsung oled */
 #if defined(CONFIG_MACH_JACTIVE_EUR)
 #define LCD_22V_EN	33
-<<<<<<< HEAD
-<<<<<<< HEAD
-#define LCD_22V_EN_2	20
-#define PMIC_GPIO_LED_DRIVER 31
-#elif defined(CONFIG_MACH_JACTIVE_ATT)
-#define LCD_22V_EN	33
-#define LCD_22V_EN_2	20
-=======
-=======
->>>>>>> 57e1c01... Merge in MJ5
 #if defined(CONFIG_FB_MSM_ENABLE_LCD_EN2)
 #define LCD_22V_EN_2	20
 #endif
@@ -400,10 +400,6 @@ static bool oled_power_on;
 #if defined(CONFIG_FB_MSM_ENABLE_LCD_EN2)
 #define LCD_22V_EN_2	20
 #endif
-<<<<<<< HEAD
->>>>>>> 57e1c01... Merge in MJ5
-=======
->>>>>>> 57e1c01... Merge in MJ5
 #define PMIC_GPIO_LED_DRIVER_REV00 28
 #define PMIC_GPIO_LED_DRIVER_REV10 31
 #else
@@ -558,14 +554,7 @@ static int mipi_dsi_power_tft_request(void)
 		gpio_tlmm_config(GPIO_CFG(LCD_22V_EN,  0, GPIO_CFG_OUTPUT,
 		GPIO_CFG_NO_PULL, GPIO_CFG_2MA), GPIO_CFG_ENABLE);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 #if defined(CONFIG_FB_MSM_ENABLE_LCD_EN2)
->>>>>>> 57e1c01... Merge in MJ5
-=======
-#if defined(CONFIG_FB_MSM_ENABLE_LCD_EN2)
->>>>>>> 57e1c01... Merge in MJ5
 		if( system_rev >= 13 ) // rev0.5 + 8
 		{
 			pr_info("[lcd] request gpio lcd_22v_en_2\n");
@@ -582,14 +571,7 @@ static int mipi_dsi_power_tft_request(void)
 			gpio_tlmm_config(GPIO_CFG(LCD_22V_EN_2,  0, GPIO_CFG_OUTPUT,
 			GPIO_CFG_NO_PULL, GPIO_CFG_2MA), GPIO_CFG_ENABLE);
 		}
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 #endif
->>>>>>> 57e1c01... Merge in MJ5
-=======
-#endif
->>>>>>> 57e1c01... Merge in MJ5
 	}
 #else
 	pr_info("[lcd] request gpio lcd_22v_en\n");
@@ -604,14 +586,7 @@ static int mipi_dsi_power_tft_request(void)
 	gpio_tlmm_config(GPIO_CFG(LCD_22V_EN,  0, GPIO_CFG_OUTPUT,
 		GPIO_CFG_NO_PULL, GPIO_CFG_2MA), GPIO_CFG_ENABLE);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 #if defined(CONFIG_FB_MSM_ENABLE_LCD_EN2)
->>>>>>> 57e1c01... Merge in MJ5
-=======
-#if defined(CONFIG_FB_MSM_ENABLE_LCD_EN2)
->>>>>>> 57e1c01... Merge in MJ5
 	if( system_rev >= 16 ) // rev0.6 + 10
 	{
 		pr_info("[lcd] request gpio lcd_22v_en_2\n");
@@ -624,14 +599,7 @@ static int mipi_dsi_power_tft_request(void)
 		gpio_tlmm_config(GPIO_CFG(LCD_22V_EN_2,  0, GPIO_CFG_OUTPUT,
 			GPIO_CFG_NO_PULL, GPIO_CFG_2MA), GPIO_CFG_ENABLE);
 	}
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 #endif
->>>>>>> 57e1c01... Merge in MJ5
-=======
-#endif
->>>>>>> 57e1c01... Merge in MJ5
 #endif
 
 	if (system_rev == 0) {
@@ -671,40 +639,6 @@ static int mipi_dsi_power_tft_request(void)
 		pr_err("gpio_config led_dirver failed (3), rc=%d\n", rc);
 		return -EINVAL;
 	}
-<<<<<<< HEAD
-<<<<<<< HEAD
-#if defined(CONFIG_MACH_JACTIVE_ATT)
-	if(system_rev < 10)
-		gpio_direction_output(gpio33, 0);
-	else
-	{
-		gpio_direction_output(LCD_22V_EN, 0);
-		if( system_rev >= 13 ) // rev0.5 + 8
-		{
-			mdelay(10);
-			gpio_direction_output(LCD_22V_EN_2, 0);
-		}
-	}
-#else
-	gpio_direction_output(LCD_22V_EN, 0);
-	if( system_rev >= 16 ) // rev0.6 + 10
-	{
-		mdelay(10);
-		gpio_direction_output(LCD_22V_EN_2, 0);
-	}
-#endif
-	if (system_rev == 0)
-		gpio_direction_output(gpio43, 0);
-	else
-		pm8xxx_mpp_config(
-			PM8921_MPP_PM_TO_SYS(MLCD_RST_MPP2),
-			&MLCD_RESET_LOW_CONFIG);
-
-	msleep(1000);
-=======
->>>>>>> 57e1c01... Merge in MJ5
-=======
->>>>>>> 57e1c01... Merge in MJ5
 
 	gpio_direction_output(gpio27, 0);
 
@@ -760,51 +694,23 @@ static int mipi_panel_power_tft(int enable)
 	else
 	{
 		gpio_direction_output(LCD_22V_EN, 1);
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 #if defined(CONFIG_FB_MSM_ENABLE_LCD_EN2)
->>>>>>> 57e1c01... Merge in MJ5
-=======
-#if defined(CONFIG_FB_MSM_ENABLE_LCD_EN2)
->>>>>>> 57e1c01... Merge in MJ5
 		if( system_rev >= 13 ) // rev0.5 + 8
 		{
 			mdelay(10);
 			gpio_direction_output(LCD_22V_EN_2, 1);
 		}
-<<<<<<< HEAD
-<<<<<<< HEAD
-	}
-#else
-		gpio_direction_output(LCD_22V_EN, 1);
-=======
 #endif
 	}
 #else
 		gpio_direction_output(LCD_22V_EN, 1);
 #if defined(CONFIG_FB_MSM_ENABLE_LCD_EN2)
->>>>>>> 57e1c01... Merge in MJ5
-=======
-#endif
-	}
-#else
-		gpio_direction_output(LCD_22V_EN, 1);
-#if defined(CONFIG_FB_MSM_ENABLE_LCD_EN2)
->>>>>>> 57e1c01... Merge in MJ5
 		if( system_rev >= 16 ) // rev0.6 + 10
 		{
 			mdelay(10);
 			gpio_direction_output(LCD_22V_EN_2, 1);
 		}
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 #endif
->>>>>>> 57e1c01... Merge in MJ5
-=======
-#endif
->>>>>>> 57e1c01... Merge in MJ5
 #endif
 
 		msleep(20);
@@ -855,49 +761,23 @@ static int mipi_panel_power_tft(int enable)
 			gpio_direction_output(gpio33, 0);
 		else
 		{
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 #if defined(CONFIG_FB_MSM_ENABLE_LCD_EN2)
->>>>>>> 57e1c01... Merge in MJ5
-=======
-#if defined(CONFIG_FB_MSM_ENABLE_LCD_EN2)
->>>>>>> 57e1c01... Merge in MJ5
 			if( system_rev >= 13 ) // rev0.5 + 8
 			{
 				gpio_direction_output(LCD_22V_EN_2, 0);
 				mdelay(10);
 			}
-<<<<<<< HEAD
-<<<<<<< HEAD
-			gpio_direction_output(LCD_22V_EN, 0);
-		}
-#else
-=======
-=======
->>>>>>> 57e1c01... Merge in MJ5
 #endif
 			gpio_direction_output(LCD_22V_EN, 0);
 		}
 #else
 #if defined(CONFIG_FB_MSM_ENABLE_LCD_EN2)
-<<<<<<< HEAD
->>>>>>> 57e1c01... Merge in MJ5
-=======
->>>>>>> 57e1c01... Merge in MJ5
 		if( system_rev >= 16 ) // rev0.6 + 10
 		{
 			gpio_direction_output(LCD_22V_EN_2, 0);
 			mdelay(10);
 		}
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 #endif
->>>>>>> 57e1c01... Merge in MJ5
-=======
-#endif
->>>>>>> 57e1c01... Merge in MJ5
 		gpio_direction_output(LCD_22V_EN, 0);
 #endif
 		usleep(2000); /*1ms delay(minimum) required between VDD off and AVDD off*/
@@ -1516,8 +1396,6 @@ static struct msm_bus_vectors dtv_bus_cam_override_vectors[] = {
 #endif
 
 #if defined(CONFIG_MACH_JACTIVE_ATT) || defined(CONFIG_MACH_JACTIVE_EUR)
-<<<<<<< HEAD
-<<<<<<< HEAD
 static struct msm_bus_paths dtv_bus_scale_usecases[] = {
 	{
 		ARRAY_SIZE(dtv_bus_init_vectors),
@@ -1533,30 +1411,6 @@ static struct msm_bus_paths dtv_bus_scale_usecases[] = {
 	},
 };
 #else
-=======
->>>>>>> 57e1c01... Merge in MJ5
-=======
->>>>>>> 57e1c01... Merge in MJ5
-static struct msm_bus_paths dtv_bus_scale_usecases[] = {
-	{
-		ARRAY_SIZE(dtv_bus_init_vectors),
-		dtv_bus_init_vectors,
-	},
-	{
-		ARRAY_SIZE(dtv_bus_def_vectors),
-		dtv_bus_def_vectors,
-	},
-	{
-		ARRAY_SIZE(dtv_bus_cam_override_vectors),
-		dtv_bus_cam_override_vectors,
-	},
-};
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 57e1c01... Merge in MJ5
-#else
 static struct msm_bus_paths dtv_bus_scale_usecases[] = {
 	{
 		ARRAY_SIZE(dtv_bus_init_vectors),
@@ -1567,10 +1421,6 @@ static struct msm_bus_paths dtv_bus_scale_usecases[] = {
 		dtv_bus_def_vectors,
 	},
 };
-<<<<<<< HEAD
->>>>>>> 57e1c01... Merge in MJ5
-=======
->>>>>>> 57e1c01... Merge in MJ5
 #endif
 
 static struct msm_bus_scale_pdata dtv_bus_scale_pdata = {

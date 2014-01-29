@@ -1005,10 +1005,10 @@ static void __init cpufreq_table_init(void)
 		for (i = 0; drv.acpu_freq_tbl[i].speed.khz != 0
 				&& freq_cnt < ARRAY_SIZE(*freq_table); i++) {
 			if (drv.acpu_freq_tbl[i].use_for_scaling) {
-#if 0
+#ifdef CONFIG_SEC_FACTORY 
 				// if factory_condition, set the core freq limit.
 				//QMCK
-				if (console_set_on_cmdline && drv.acpu_freq_tbl[i].speed.khz > 1242000) {
+				if (console_set_on_cmdline && drv.acpu_freq_tbl[i].speed.khz > 1000000) {
 					if(console_batt_stat == 1) {
 						continue;
 					}

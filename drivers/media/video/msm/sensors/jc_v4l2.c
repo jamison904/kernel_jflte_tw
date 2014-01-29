@@ -2533,6 +2533,20 @@ static int jc_set_ocr_focus_mode(int mode)
 	return rc;
 }
 
+static int jc_set_different_ratio_capture(int mode)
+{
+	int32_t rc = 0;
+
+	cam_info("Entered, different ratio capture mode %d\n", mode);
+
+	if (mode == 1)
+		jc_writeb(JC_CATEGORY_CAPPARM, 0x77, 0x1);
+	else
+		jc_writeb(JC_CATEGORY_CAPPARM, 0x77, 0x0);
+
+	return rc;
+}
+
 static int jc_set_af_window(int mode)
 {
 	int32_t rc = 0;
@@ -2932,6 +2946,10 @@ void sensor_native_control(void __user *arg)
 		jc_set_ocr_focus_mode(ctrl_info.value_1);
 		break;
 
+	case EXT_CAM_SET_AF_WINDOW:
+		jc_set_af_window(ctrl_info.value_1);
+		break;
+
 	case EXT_CAM_SET_FACTORY_BIN:
 		cam_info(" factory binary: %d", ctrl_info.value_1);
 		if (ctrl_info.value_1 == 1)
@@ -2948,10 +2966,6 @@ void sensor_native_control(void __user *arg)
 	case EXT_CAM_STOP_GOLF_SHOT:
 		cam_info("Golf shot stop, return normal shutter speed");
 		jc_writeb(0x03, 0x0B, 0x08);
-		break;
-
-	case EXT_CAM_SET_AF_WINDOW:
-		jc_set_af_window(ctrl_info.value_1);
 		break;
 
 	default:
@@ -3211,7 +3225,6 @@ static int jc_sensor_power_up(struct msm_sensor_ctrl_t *s_ctrl)
 
 				if (result_sensor_isp > 0) {
 					cam_info("Sensor > ISP, update from sensor\n");
-					jc_ctrl->isp_null_read_sensor_fw = true;
 					jc_isp_reset(s_ctrl);
 					jc_load_SIO_fw();
 					jc_read_from_sensor_fw();
@@ -3250,6 +3263,11 @@ start:
 	cam_info("nv12 output setting\n");
 	err = jc_writeb(JC_CATEGORY_CAPCTRL,
 			0x0, 0x0f);
+
+	if (jc_ctrl->samsung_app != 1) {
+		cam_info("Set different ratio capture mode\n");
+		jc_set_different_ratio_capture(1);
+	}
 
 	err = jc_readb(0x01, 0x3F, &isp_revision);
 	cam_info("isp revision : 0x%x\n", isp_revision);

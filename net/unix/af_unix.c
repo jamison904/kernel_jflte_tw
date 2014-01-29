@@ -375,7 +375,7 @@ static void unix_sock_destructor(struct sock *sk)
 #endif
 }
 
-static void unix_release_sock(struct sock *sk, int embrion)
+static int unix_release_sock(struct sock *sk, int embrion)
 {
 	struct unix_sock *u = unix_sk(sk);
 	struct path path;
@@ -444,6 +444,8 @@ static void unix_release_sock(struct sock *sk, int embrion)
 
 	if (unix_tot_inflight)
 		unix_gc();		/* Garbage collect fds */
+
+	return 0;
 }
 
 static void init_peercred(struct sock *sk)
@@ -525,17 +527,13 @@ static int unix_seqpacket_sendmsg(struct kiocb *, struct socket *,
 static int unix_seqpacket_recvmsg(struct kiocb *, struct socket *,
 				  struct msghdr *, size_t, int);
 
-static int unix_set_peek_off(struct sock *sk, int val)
+static void unix_set_peek_off(struct sock *sk, int val)
 {
 	struct unix_sock *u = unix_sk(sk);
 
-	if (mutex_lock_interruptible(&u->readlock))
-		return -EINTR;
-
+	mutex_lock(&u->readlock);
 	sk->sk_peek_off = val;
 	mutex_unlock(&u->readlock);
-
-	return 0;
 }
 
 
@@ -697,10 +695,9 @@ static int unix_release(struct socket *sock)
 	if (!sk)
 		return 0;
 
-	unix_release_sock(sk, 0);
 	sock->sk = NULL;
 
-	return 0;
+	return unix_release_sock(sk, 0);
 }
 
 static int unix_autobind(struct socket *sock)
@@ -713,9 +710,7 @@ static int unix_autobind(struct socket *sock)
 	int err;
 	unsigned int retries = 0;
 
-	err = mutex_lock_interruptible(&u->readlock);
-	if (err)
-		return err;
+	mutex_lock(&u->readlock);
 
 	err = 0;
 	if (u->addr)
@@ -848,9 +843,7 @@ static int unix_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
 		goto out;
 	addr_len = err;
 
-	err = mutex_lock_interruptible(&u->readlock);
-	if (err)
-		goto out;
+	mutex_lock(&u->readlock);
 
 	err = -EINVAL;
 	if (u->addr)
@@ -1256,15 +1249,6 @@ static int unix_socketpair(struct socket *socka, struct socket *sockb)
 	return 0;
 }
 
-static void unix_sock_inherit_flags(const struct socket *old,
-				    struct socket *new)
-{
-	if (test_bit(SOCK_PASSCRED, &old->flags))
-		set_bit(SOCK_PASSCRED, &new->flags);
-	if (test_bit(SOCK_PASSSEC, &old->flags))
-		set_bit(SOCK_PASSSEC, &new->flags);
-}
-
 static int unix_accept(struct socket *sock, struct socket *newsock, int flags)
 {
 	struct sock *sk = sock->sk;
@@ -1299,7 +1283,6 @@ static int unix_accept(struct socket *sock, struct socket *newsock, int flags)
 	/* attach accepted sock to socket */
 	unix_state_lock(tsk);
 	newsock->state = SS_CONNECTED;
-	unix_sock_inherit_flags(sock, newsock);
 	sock_graft(tsk, newsock);
 	unix_state_unlock(tsk);
 	return 0;
@@ -1764,6 +1747,7 @@ static void unix_copy_addr(struct msghdr *msg, struct sock *sk)
 {
 	struct unix_sock *u = unix_sk(sk);
 
+	msg->msg_namelen = 0;
 	if (u->addr) {
 		msg->msg_namelen = u->addr->len;
 		memcpy(msg->msg_name, u->addr->name, u->addr->len);
@@ -1786,6 +1770,8 @@ static int unix_dgram_recvmsg(struct kiocb *iocb, struct socket *sock,
 	err = -EOPNOTSUPP;
 	if (flags&MSG_OOB)
 		goto out;
+
+	msg->msg_namelen = 0;
 
 	err = mutex_lock_interruptible(&u->readlock);
 	if (err) {
@@ -1928,6 +1914,8 @@ static int unix_stream_recvmsg(struct kiocb *iocb, struct socket *sock,
 	target = sock_rcvlowat(sk, flags&MSG_WAITALL, size);
 	timeo = sock_rcvtimeo(sk, flags&MSG_DONTWAIT);
 
+	msg->msg_namelen = 0;
+
 	/* Lock the socket to prevent queue disordering
 	 * while sleeps in memcpy_tomsg
 	 */
@@ -2000,7 +1988,7 @@ again:
 			if ((UNIXCB(skb).pid  != siocb->scm->pid) ||
 			    (UNIXCB(skb).cred != siocb->scm->cred))
 				break;
-		} else if (test_bit(SOCK_PASSCRED, &sock->flags)) {
+		} else {
 			/* Copy credentials */
 			scm_set_cred(siocb->scm, UNIXCB(skb).pid, UNIXCB(skb).cred);
 			check_creds = 1;

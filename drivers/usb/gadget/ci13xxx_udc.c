@@ -2038,15 +2038,7 @@ static int _hardware_dequeue(struct ci13xxx_ep *mEp, struct ci13xxx_req *mReq)
 	if (mReq->zptr) {
 		if ((TD_STATUS_ACTIVE & mReq->zptr->token) != 0)
 			return -EBUSY;
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
 		
->>>>>>> 57e1c01... Merge in MJ5
-=======
-		
->>>>>>> 57e1c01... Merge in MJ5
 		/* The controller may access this dTD one more time.
 		 * Defer freeing this to next zero length dTD completion.
 		 * It is safe to assume that controller will no longer

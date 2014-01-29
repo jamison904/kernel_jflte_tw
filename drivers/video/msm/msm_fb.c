@@ -1111,22 +1111,14 @@ static int msm_fb_mmap(struct fb_info *info, struct vm_area_struct * vma)
 	u32 len = PAGE_ALIGN((start & ~PAGE_MASK) + info->fix.smem_len);
 	unsigned long off = vma->vm_pgoff << PAGE_SHIFT;
 	struct msm_fb_data_type *mfd = (struct msm_fb_data_type *)info->par;
+
+	if ((vma->vm_end <= vma->vm_start) || (off >= len) ||
+		((vma->vm_end - vma->vm_start) > (len - off)))
+		return -EINVAL;
 	msm_fb_pan_idle(mfd);
-	if (off >= len) {
-		/* memory mapped io */
-		off -= len;
-		if (info->var.accel_flags) {
-			mutex_unlock(&info->lock);
-			return -EINVAL;
-		}
-		start = info->fix.mmio_start;
-		len = PAGE_ALIGN((start & ~PAGE_MASK) + info->fix.mmio_len);
-	}
 
 	/* Set VM flags. */
 	start &= PAGE_MASK;
-	if ((vma->vm_end - vma->vm_start + off) > len)
-		return -EINVAL;
 	off += start;
 	vma->vm_pgoff = off >> PAGE_SHIFT;
 	/* This is an IO map - tell maydump to skip this VMA */
@@ -1559,6 +1551,11 @@ static int msm_fb_register(struct msm_fb_data_type *mfd)
 	MSM_FB_INFO
 	    ("FrameBuffer[%d] %dx%d size=%d bytes is registered successfully!\n",
 	     mfd->index, fbi->var.xres, fbi->var.yres, fbi->fix.smem_len);
+
+#ifdef CONFIG_UPDATE_LCDC_LUT
+	if (msm_fb_pdata->update_lcdc_lut)
+		msm_fb_pdata->update_lcdc_lut();
+#endif
 
 #ifdef CONFIG_FB_MSM_LOGO
 	/* Flip buffer */

@@ -538,7 +538,7 @@ error:
 	return ret;
 }
 
-DEFINE_MUTEX(mdp_lut_push_sem);
+spinlock_t mdp_lut_push_lock;
 static int mdp_lut_i;
 
 static int mdp_lut_hw_update(struct fb_cmap *cmap)
@@ -573,9 +573,32 @@ static int mdp_lut_hw_update(struct fb_cmap *cmap)
 
 static int mdp_lut_push;
 static int mdp_lut_push_i;
+static int mdp_lut_resume_needed;
+
+static void mdp_lut_status_restore(void)
+{
+	unsigned long flags;
+
+	if (mdp_lut_resume_needed) {
+		spin_lock_irqsave(&mdp_lut_push_lock, flags);
+		mdp_lut_push = 1;
+		spin_unlock_irqrestore(&mdp_lut_push_lock, flags);
+	}
+}
+
+static void mdp_lut_status_backup(void)
+{
+	uint32_t status = inpdw(MDP_BASE + 0x90070) & 0x7;
+	if (status)
+		mdp_lut_resume_needed = 1;
+	else
+		mdp_lut_resume_needed = 0;
+}
+
 static int mdp_lut_update_nonlcdc(struct fb_info *info, struct fb_cmap *cmap)
 {
 	int ret;
+	unsigned long flags;
 
 	mdp_pipe_ctrl(MDP_CMD_BLOCK, MDP_BLOCK_POWER_ON, FALSE);
 	mdp_clk_ctrl(1);
@@ -586,11 +609,10 @@ static int mdp_lut_update_nonlcdc(struct fb_info *info, struct fb_cmap *cmap)
 	if (ret)
 		return ret;
 
-	mutex_lock(&mdp_lut_push_sem);
+	spin_lock_irqsave(&mdp_lut_push_lock, flags);
 	mdp_lut_push = 1;
 	mdp_lut_push_i = mdp_lut_i;
-	mutex_unlock(&mdp_lut_push_sem);
-
+	spin_unlock_irqrestore(&mdp_lut_push_lock, flags);
 	mdp_lut_i = (mdp_lut_i + 1)%2;
 
 	return 0;
@@ -635,11 +657,11 @@ int mdp_preset_lut_update_lcdc(struct fb_cmap *cmap, uint32_t *internal_lut)
 		r = lut2r(internal_lut[i]);
 		g = lut2g(internal_lut[i]);
 		b = lut2b(internal_lut[i]);
-#ifdef CONFIG_LCD_KCAL
+
 		r = scaled_by_kcal(r, *(cmap->red));
 		g = scaled_by_kcal(g, *(cmap->green));
 		b = scaled_by_kcal(b, *(cmap->blue));
-#endif
+
 		MDP_OUTP(MDP_BASE + 0x94800 +
 			(0x400*mdp_lut_i) + cmap->start*4 + i*4,
 				((g & 0xff) |
@@ -656,18 +678,21 @@ int mdp_preset_lut_update_lcdc(struct fb_cmap *cmap, uint32_t *internal_lut)
 
 	return 0;
 }
+EXPORT_SYMBOL(mdp_preset_lut_update_lcdc);
 #endif
 
 static void mdp_lut_enable(void)
 {
 	uint32_t out;
+	unsigned long flags;
+
 	if (mdp_lut_push) {
-		mutex_lock(&mdp_lut_push_sem);
+		spin_lock_irqsave(&mdp_lut_push_lock, flags);
 		mdp_lut_push = 0;
 		out = inpdw(MDP_BASE + 0x90070) & ~((0x1 << 10) | 0x7);
 		MDP_OUTP(MDP_BASE + 0x90070,
 				(mdp_lut_push_i << 10) | 0x7 | out);
-		mutex_unlock(&mdp_lut_push_sem);
+		spin_unlock_irqrestore(&mdp_lut_push_lock, flags);
 	}
 }
 
@@ -1631,6 +1656,15 @@ void mdp_disable_irq_nosync(uint32 term)
 	spin_unlock(&mdp_lock);
 }
 
+void mdp_pipe_kickoff_simplified(uint32 term)
+{
+	if (term == MDP_OVERLAY0_TERM) {
+		mdp_pipe_ctrl(MDP_OVERLAY0_BLOCK, MDP_BLOCK_POWER_ON, FALSE);
+		mdp_lut_enable();
+		outpdw(MDP_BASE + 0x0004, 0);
+	}
+}
+
 void mdp_pipe_kickoff(uint32 term, struct msm_fb_data_type *mfd)
 {
 	unsigned long flag;
@@ -1701,6 +1735,7 @@ void mdp_pipe_kickoff(uint32 term, struct msm_fb_data_type *mfd)
 		outpdw(MDP_BASE + 0x0014, 0x0);	/* start DMA */
 	} else if (term == MDP_OVERLAY0_TERM) {
 		mdp_pipe_ctrl(MDP_OVERLAY0_BLOCK, MDP_BLOCK_POWER_ON, FALSE);
+		mdp_lut_enable();
 		outpdw(MDP_BASE + 0x0004, 0);
 	} else if (term == MDP_OVERLAY1_TERM) {
 		mdp_pipe_ctrl(MDP_OVERLAY1_BLOCK, MDP_BLOCK_POWER_ON, FALSE);
@@ -2174,6 +2209,7 @@ static void mdp_drv_init(void)
 
 	/* initialize spin lock and workqueue */
 	spin_lock_init(&mdp_spin_lock);
+	spin_lock_init(&mdp_lut_push_lock);
 	mdp_dma_wq = create_singlethread_workqueue("mdp_dma_wq");
 	mdp_vsync_wq = create_singlethread_workqueue("mdp_vsync_wq");
 	mdp_pipe_ctrl_wq = create_singlethread_workqueue("mdp_pipe_ctrl_wq");
@@ -2312,6 +2348,7 @@ static int mdp_off(struct platform_device *pdev)
 	atomic_set(&vsync_cntrl.vsync_resume, 0);
 	complete_all(&vsync_cntrl.vsync_wait);
 	mdp_clk_ctrl(1);
+	mdp_lut_status_backup();
 
 	mdp_pipe_ctrl(MDP_CMD_BLOCK, MDP_BLOCK_POWER_ON, FALSE);
 	ret = panel_next_off(pdev);
@@ -2330,7 +2367,9 @@ static int mdp_off(struct platform_device *pdev)
 
 	mdp_clk_ctrl(0);
 #ifdef CONFIG_MSM_BUS_SCALING
-	mdp_bus_scale_update_request(0, 0);
+	
+	mdp_bus_scale_update_request(0, 0, 0, 0);
+	
 #endif
 	if (mdp_rev >= MDP_REV_41 && mfd->panel.type == MIPI_CMD_PANEL)
 		mdp_dsi_cmd_overlay_suspend(mfd);
@@ -2362,6 +2401,7 @@ static int mdp_on(struct platform_device *pdev)
 		mdp_pipe_ctrl(MDP_CMD_BLOCK, MDP_BLOCK_POWER_ON, FALSE);
 		mdp_clk_ctrl(1);
 		mdp4_hw_init();
+		mdp_lut_status_restore();
 		outpdw(MDP_BASE + 0x0038, mdp4_display_intf);
 		if (mfd->panel.type == MIPI_CMD_PANEL) {
 			mdp_vsync_cfg_regs(mfd, FALSE);
@@ -2453,8 +2493,8 @@ void mdp_hw_version(void)
 
 #ifdef CONFIG_MSM_BUS_SCALING
 
-#ifndef MDP_BUS_VECTOR_ENTRY
-#define MDP_BUS_VECTOR_ENTRY(ab_val, ib_val)		\
+#ifndef MDP_BUS_VECTOR_ENTRY_P0
+#define MDP_BUS_VECTOR_ENTRY_P0(ab_val, ib_val)                \
 	{						\
 		.src = MSM_BUS_MASTER_MDP_PORT0,	\
 		.dst = MSM_BUS_SLAVE_EBI_CH0,		\
@@ -2462,17 +2502,51 @@ void mdp_hw_version(void)
 		.ib  = (ib_val),			\
 	}
 #endif
+#ifndef MDP_BUS_VECTOR_ENTRY_P1
+#define MDP_BUS_VECTOR_ENTRY_P1(ab_val, ib_val)                \
+       {                                               \
+               .src = MSM_BUS_MASTER_MDP_PORT1,        \
+               .dst = MSM_BUS_SLAVE_EBI_CH0,           \
+               .ab  = (ab_val),                        \
+               .ib  = (ib_val),                        \
+       }
+#endif
+
+
 /*
  *    Entry 0 hold 0 request
  *    Entry 1 and 2 do ping pong request
  */
-static struct msm_bus_vectors mdp_bus_vectors[] = {
-	MDP_BUS_VECTOR_ENTRY(0, 0),
-	MDP_BUS_VECTOR_ENTRY( 128000000,  160000000),
-	MDP_BUS_VECTOR_ENTRY( 128000000,  160000000),
+static struct msm_bus_vectors mdp_bus_init_vectors[] = {
+		MDP_BUS_VECTOR_ENTRY_P0(0, 0),
+		MDP_BUS_VECTOR_ENTRY_P1(0, 0),
 };
 
-static struct msm_bus_paths mdp_bus_usecases[ARRAY_SIZE(mdp_bus_vectors)];
+static struct msm_bus_vectors mdp_bus_ping_vectors[] = {
+		MDP_BUS_VECTOR_ENTRY_P0(128000000, 160000000),
+		MDP_BUS_VECTOR_ENTRY_P1(128000000, 160000000),
+};
+
+static struct msm_bus_vectors mdp_bus_pong_vectors[] = {
+		MDP_BUS_VECTOR_ENTRY_P0(128000000, 160000000),
+		MDP_BUS_VECTOR_ENTRY_P1(128000000, 160000000),
+};
+
+static struct msm_bus_paths mdp_bus_usecases[] = {
+       {
+               ARRAY_SIZE(mdp_bus_init_vectors),
+               mdp_bus_init_vectors,
+       },
+      {
+               ARRAY_SIZE(mdp_bus_ping_vectors),
+               mdp_bus_ping_vectors,
+       },
+       {
+               ARRAY_SIZE(mdp_bus_pong_vectors),
+               mdp_bus_pong_vectors,
+       },
+};
+
 static struct msm_bus_scale_pdata mdp_bus_scale_table = {
 	.usecase = mdp_bus_usecases,
 	.num_usecases = ARRAY_SIZE(mdp_bus_usecases),
@@ -2483,12 +2557,7 @@ static uint32_t mdp_bus_scale_handle;
 static int mdp_bus_scale_register(void)
 {
 	struct msm_bus_scale_pdata *bus_pdata = &mdp_bus_scale_table;
-	int i;
-	for (i = 0; i < bus_pdata->num_usecases; i++) {
-		mdp_bus_usecases[i].num_paths = 1;
-		mdp_bus_usecases[i].vectors = &mdp_bus_vectors[i];
-	}
-	
+
 	if (!mdp_bus_scale_handle) {
 		mdp_bus_scale_handle = msm_bus_scale_register_client(bus_pdata);
 		if (!mdp_bus_scale_handle) {									
@@ -2500,14 +2569,14 @@ static int mdp_bus_scale_register(void)
 }
 
 static int bus_index = 1;
-int mdp_bus_scale_update_request(u64 ab, u64 ib)
+int mdp_bus_scale_update_request(u64 ab_p0, u64 ib_p0, u64 ab_p1, u64 ib_p1)
 {
 	if (mdp_bus_scale_handle < 1) {
 		pr_err("%s invalid bus handle\n", __func__);
 		return -EINVAL;
 	}
 
-	if (!ab)
+	if ((!ab_p0) && (!ab_p1))
 		return msm_bus_scale_client_update_request
 			(mdp_bus_scale_handle, 0);
 
@@ -2515,14 +2584,23 @@ int mdp_bus_scale_update_request(u64 ab, u64 ib)
 	bus_index++;
 	bus_index = (bus_index > 2) ? 1 : bus_index;
 
-	mdp_bus_usecases[bus_index].vectors->ab = min(ab, mdp_max_bw);
-	ib = max(ib, ab);
-	mdp_bus_usecases[bus_index].vectors->ib = min(ib, mdp_max_bw);
+	mdp_bus_usecases[bus_index].vectors[0].ab = min(ab_p0, mdp_max_bw);
+   ib_p0 = max(ib_p0, ab_p0);
+   mdp_bus_usecases[bus_index].vectors[0].ib = min(ib_p0, mdp_max_bw);
 
+   mdp_bus_usecases[bus_index].vectors[1].ab = min(ab_p1, mdp_max_bw);
+   ib_p1 = max(ib_p1, ab_p1);
+   mdp_bus_usecases[bus_index].vectors[1].ib = min(ib_p1, mdp_max_bw);
+   
 	pr_debug("%s: handle=%d index=%d ab=%llu ib=%llu\n", __func__,
 		 (u32)mdp_bus_scale_handle, bus_index,
-		 mdp_bus_usecases[bus_index].vectors->ab,
-		 mdp_bus_usecases[bus_index].vectors->ib);
+		 mdp_bus_usecases[bus_index].vectors[0].ab,
+		mdp_bus_usecases[bus_index].vectors[0].ib);
+	pr_debug("%s: p1 handle=%d index=%d ab=%llu ib=%llu\n", __func__,
+			(u32)mdp_bus_scale_handle, bus_index,
+			mdp_bus_usecases[bus_index].vectors[1].ab,
+			mdp_bus_usecases[bus_index].vectors[1].ib);
+	
 
 	return msm_bus_scale_client_update_request
 		(mdp_bus_scale_handle, bus_index);
@@ -2532,15 +2610,25 @@ int mdp_bus_scale_restore_request(void)
 { 
 	u64 ab, ib; 
 	if (!bus_index || 
-		!mdp_bus_usecases[bus_index].vectors->ab) { 
+		!mdp_bus_usecases[bus_index].vectors[0].ab) { 
 		ab = mdp_max_bw; 
 		ib = mdp_max_bw; 
 	} else { 
-		ab = mdp_bus_usecases[bus_index].vectors->ab; 
-		ib = mdp_bus_usecases[bus_index].vectors->ib; 
+		ab = mdp_bus_usecases[bus_index].vectors[0].ab; 
+		ib = mdp_bus_usecases[bus_index].vectors[0].ib; 
 	} 
 	pr_info("%s: ab=%llu ib=%llu\n", __func__, ab, ib); 
-	return mdp_bus_scale_update_request(ab, ib); 
+	
+	pr_debug("%s: index=%d ab_p0=%llu ib_p0=%llu\n", __func__, bus_index,
+					 mdp_bus_usecases[bus_index].vectors[0].ab,
+					 mdp_bus_usecases[bus_index].vectors[0].ib);
+	pr_debug("%s: index=%d ab_p1=%llu ib_p1=%llu\n", __func__, bus_index,
+					 mdp_bus_usecases[bus_index].vectors[1].ab,
+					 mdp_bus_usecases[bus_index].vectors[1].ib);
+	
+	return mdp_bus_scale_update_request(ab, ib,
+		mdp_bus_usecases[bus_index].vectors[1].ab,
+		mdp_bus_usecases[bus_index].vectors[1].ib); 
 } 
 
 #endif
@@ -3080,7 +3168,7 @@ static int mdp_probe(struct platform_device *pdev)
 
 	/* req bus bandwidth immediately */
 	if (!(mfd->cont_splash_done))
-		mdp_bus_scale_update_request(mdp_max_bw, mdp_max_bw);
+		mdp_bus_scale_update_request(mdp_max_bw, mdp_max_bw,mdp_max_bw,mdp_max_bw);
 #endif
 
 	/* set driver data */

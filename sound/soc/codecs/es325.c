@@ -222,7 +222,7 @@ static u8 es325_internal_route_1mic_headset_WB[10] = {
 	0xff		/* terminate */
 };
 
-#if defined(CONFIG_MACH_JACTIVE_ATT)
+#if defined(CONFIG_MACH_JACTIVE_ATT) || defined(CONFIG_MACH_JACTIVE_EUR)
 /* 1-mic Speaker NB (1-mic FT)(NS off)(SW bypss) */
 static u8 es325_internal_route_1mic_speaker[10] = {
 	0x90, 0x31, 0x00, 0x0d, /* 1 Mic 1 FEOUT */
@@ -237,16 +237,20 @@ static u8 es325_internal_route_1mic_speaker[10] = {
 	0xff		/* terminate */
 };
 #endif
-
+#ifdef CONFIG_MACH_JACTIVE_EUR
+/* 1-mic Speaker WB (1-mic FT)(NS off)(SW bypss) */
+static u8 es325_internal_route_1mic_speaker_WB[10] = {		
+	0x90, 0x31, 0x00, 0x0d, /* 1 Mic 1 FEOUT */
+	0x90, 0x31, 0x00, 0x83, /* Algo Preset: 1-mic CT WB */
+	0xff		/* terminate */
+};
+#else
 /* 1-mic Speaker WB (1-mic FT)(NS off)(SW bypss) */
 static u8 es325_internal_route_1mic_speaker_WB[10] = {		
 	0x90, 0x31, 0x00, 0x0c, /* 1 Mic 1 FEOUT */
 	0x90, 0x31, 0x00, 0x83, /* Algo Preset: 1-mic CT WB */
 	0xff		/* terminate */
 };
-<<<<<<< HEAD
-
-=======
 #endif
 
 #if defined(CONFIG_MACH_JACTIVE_ATT)
@@ -257,10 +261,6 @@ static u8 es325_internal_route_2mic_speaker[10] = {
 	0xff		/* terminate */
 };
 #else
-<<<<<<< HEAD
->>>>>>> 57e1c01... Merge in MJ5
-=======
->>>>>>> 57e1c01... Merge in MJ5
 /* 2-mic Speaker NB (2-mic FT)(NS on) */
 static u8 es325_internal_route_2mic_speaker[10] = {	
 	0x90, 0x31, 0x00, 0x02, /* 2 Mic 1 FEOUT w UITone CT */
@@ -2312,7 +2312,7 @@ LOOP:
 	rc = ES325_BUS_WRITE(es325, ES325_WRITE_VE_OFFSET,
 			     ES325_WRITE_VE_WIDTH, pwr_cmd, 4, 1);
 	if (rc < 0) {
-		if (--remain > 0) {
+		if (-remain > 0) {
 			pr_info("=[ES325]= wrapper %s sleep command failed remain count %d\n",
 				__func__, remain);
 			usleep_range(1000, 1100);

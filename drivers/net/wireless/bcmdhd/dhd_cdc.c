@@ -21,15 +21,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
-<<<<<<< HEAD
-<<<<<<< HEAD
- * $Id: dhd_cdc.c 391745 2013-03-19 08:35:39Z $
-=======
  * $Id: dhd_cdc.c 424070 2013-09-16 05:39:06Z $
->>>>>>> 57e1c01... Merge in MJ5
-=======
- * $Id: dhd_cdc.c 424070 2013-09-16 05:39:06Z $
->>>>>>> 57e1c01... Merge in MJ5
  *
  * BDC is like CDC, except it includes a header for data packets to convey
  * packet priority over the bus, and flags (e.g. to indicate checksum status
@@ -1432,17 +1424,8 @@ _dhd_wlfc_mac_entry_update(athost_wl_status_info_t* ctx, wlfc_mac_descriptor_t* 
 		entry->requested_credit = 0;
 		/* enable after packets are queued-deqeued properly.
 		pktq_flush(dhd->osh, &entry->psq, FALSE, NULL, 0);
-<<<<<<< HEAD
-<<<<<<< HEAD
-		*/
-
-		memset(&entry->ea[0],0, ETHER_ADDR_LEN);
-=======
-=======
->>>>>>> 57e1c01... Merge in MJ5
 		 */
 		memset(&entry->ea[0], 0, ETHER_ADDR_LEN);
->>>>>>> 57e1c01... Merge in MJ5
 		entry->transit_count = 0;
 		entry->suppr_transit_count = 0;
 		entry->suppress_count = 0;

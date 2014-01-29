@@ -1116,7 +1116,31 @@ void *vm_map_ram(struct page **pages, unsigned int count, int node, pgprot_t pro
 	return mem;
 }
 EXPORT_SYMBOL(vm_map_ram);
+/**
+ * vm_area_check_early - check if vmap area is already mapped
+ * @vm: vm_struct to be checked
+ *
+ * This function is used to check if the vmap area has been
+ * mapped already. @vm->addr, @vm->size and @vm->flags should
+ * contain proper values.
+ *
+ */
+int __init vm_area_check_early(struct vm_struct *vm)
+{
+	struct vm_struct *tmp, **p;
 
+	BUG_ON(vmap_initialized);
+	for (p = &vmlist; (tmp = *p) != NULL; p = &tmp->next) {
+		if (tmp->addr >= vm->addr) {
+			if (tmp->addr < vm->addr + vm->size)
+				return 1;
+		} else {
+			if (tmp->addr + tmp->size > vm->addr)
+				return 1;
+		}
+	}
+	return 0;
+}
 /**
  * vm_area_add_early - add vmap area early during boot
  * @vm: vm_struct to add
@@ -1185,9 +1209,10 @@ void __init vmalloc_init(void)
 	/* Import existing vmlist entries. */
 	for (tmp = vmlist; tmp; tmp = tmp->next) {
 		va = kzalloc(sizeof(struct vmap_area), GFP_NOWAIT);
-		va->flags = tmp->flags | VM_VM_AREA;
+		va->flags = VM_VM_AREA;
 		va->va_start = (unsigned long)tmp->addr;
 		va->va_end = va->va_start + tmp->size;
+		va->vm = tmp;
 		__insert_vmap_area(va);
 	}
 

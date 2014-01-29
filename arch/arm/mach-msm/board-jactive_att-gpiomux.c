@@ -755,11 +755,6 @@ static struct msm_gpiomux_config apq8064_nc_configs[] __initdata = {
 };
 
 static struct msm_gpiomux_config apq8064_nc_configs_rev05[] __initdata = {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 57e1c01... Merge in MJ5
 #if !defined(CONFIG_FB_MSM_ENABLE_LCD_EN2)
 	{
 		.gpio      = 20,
@@ -768,10 +763,6 @@ static struct msm_gpiomux_config apq8064_nc_configs_rev05[] __initdata = {
 		},
 	},
 #endif
-<<<<<<< HEAD
->>>>>>> 57e1c01... Merge in MJ5
-=======
->>>>>>> 57e1c01... Merge in MJ5
 	{
 		.gpio      = 21,
 		.settings = {
@@ -1363,8 +1354,6 @@ static struct msm_gpiomux_config msm8064_sd_det_config[] = {
 		.settings = {
 			[GPIOMUX_SUSPENDED] = &sd_det_suspended_cfg,
 			[GPIOMUX_ACTIVE] = &sd_det_active_cfg,
-<<<<<<< HEAD
-<<<<<<< HEAD
 		},
 	},
 };
@@ -1382,40 +1371,10 @@ static struct msm_gpiomux_config msm8064_ls_en_config[] = {
 		.gpio = 64,	/* Level Shifter Enable */
 		.settings = {
 			[GPIOMUX_SUSPENDED] = &ls_en_suspended_cfg,
-=======
->>>>>>> 57e1c01... Merge in MJ5
-=======
->>>>>>> 57e1c01... Merge in MJ5
 		},
 	},
 };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 57e1c01... Merge in MJ5
-#ifdef CONFIG_MMC_MSM_SDC4_SUPPORT
-
-static struct gpiomux_setting ls_en_suspended_cfg = {
-	.func = GPIOMUX_FUNC_GPIO,
-	.pull = GPIOMUX_PULL_NONE,
-	.dir = GPIOMUX_OUT_LOW,
-};
-
-static struct msm_gpiomux_config msm8064_ls_en_config[] = {
-	{
-		.gpio = 64,	/* Level Shifter Enable */
-		.settings = {
-			[GPIOMUX_SUSPENDED] = &ls_en_suspended_cfg,
-		},
-	},
-};
-
-<<<<<<< HEAD
->>>>>>> 57e1c01... Merge in MJ5
-=======
->>>>>>> 57e1c01... Merge in MJ5
 #endif
 
 #if defined(CONFIG_LEDS_AN30259A)
