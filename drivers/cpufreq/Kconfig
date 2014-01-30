@@ -211,6 +211,18 @@ config CPU_FREQ_DEFAULT_GOV_WHEATLEY
 	---help---
 	  Use the CPUFreq governor 'wheatley' as default.
 
+config CPU_FREQ_DEFAULT_GOV_LIONHEART
+	bool "lionheart"
+	select CPU_FREQ_GOV_LIONHEART
+	help
+	  Lionheart is a conservative-based governor which is based on
+	  samsung's update3 source. The tunables (such as the thresholds
+	  and sampling rate) were changed so the governor behaves more
+	  like the performance one, at the cost of battery as the scaling
+	  is very aggressive. When it comes to smoothness (not considering
+	  battery drain), a tuned conservative delivers more as compared to
+	  a tuned ondemand.
+
 endchoice
 
 config CPU_FREQ_GOV_ABYSSPLUG
@@ -437,6 +449,14 @@ config CPU_FREQ_GOV_CONSERVATIVEX
 	depends on CPU_FREQ
 	help
 	  'conservativex' - less aggressive version of conservative
+
+config CPU_FREQ_GOV_LIONHEART
+	tristate "'lionheart' cpufreq governor"
+	depends on CPU_FREQ
+	help
+	  'LionHeart' - a more aggressive conservative governor approach.
+
+	  If in doubt, say N.
 
 config SEC_DVFS
 	bool "DVFS job"

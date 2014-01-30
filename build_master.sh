@@ -50,6 +50,6 @@ make VARIANT_DEFCONFIG=jf_$CARRIER"_defconfig" SELINUX_DEFCONFIG=jfselinux_defco
 echo "Modding .config file - "$KTVER
 sed -i 's,CONFIG_LOCALVERSION="_BioShock_4.0-",CONFIG_LOCALVERSION="'$KTVER'",' .config
 
-	make -j5
+	make -j8
 
 
